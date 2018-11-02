@@ -25,4 +25,6 @@ Image registration is one of the most critical problems in radiology targeting t
 3) `sh` the downloaded file and follow instructions (installation takes few minutes)
 
 ### Install CUDA Tookit
-4)
+1) Install nvidia cuda toolkit (`apt install nvidia-cuda-toolkit`)
+2) ???
+3) Profit
