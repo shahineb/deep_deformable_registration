@@ -25,6 +25,8 @@ Image registration is one of the most critical problems in radiology targeting t
 3) `sh` the downloaded file and follow instructions (installation takes few minutes)
 
 ### Install CUDA Tookit
-1) Install nvidia cuda toolkit (`apt install nvidia-cuda-toolkit`)
-2) ???
-3) Profit
+1) Install linux headers (`apt-get install linux-headers-generic`)
+2) Download runtime installer (`wget https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda_10.0.130_410.48_linux`)
+3) Make it executable (`chmod +x cuda_10.0.130_410.48_linux`)
+4) Run it and follow the prompt (`./cuda_10.0.130_410.48_linux`). Do not have it run xconfig, say yes to all the other questions.
+5) Path addition (`export PATH=/usr/local/cuda-10.0/bin${PATH:+:${PATH}}` and `export LD_LIBRARY_PATH=/usr/local/cuda-10.0/lib64\${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}`)
