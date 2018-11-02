@@ -17,12 +17,12 @@ Image registration is one of the most critical problems in radiology targeting t
 - CPU : 32 Intel(R) Xeon(R) CPU E5-2630 v3 @ 2.40GHz (`/proc/cpuinfo`)
 - GPU : 4 NVIDIA Tesla K40c (`/proc/driver/nvidia/gpus`)
 
-## Environnment Setup
+## Environment Setup
 
-# Install Anaconda
+### Install Anaconda
 1) cd to `/workspace` directory
 2) `wget https://repo.anaconda.com/archive/Anaconda3-5.3.0-Linux-x86_64.sh` (or latest version)
 3) `sh` the downloaded file and follow instructions (installation takes few minutes)
 
-# Install CUDA Tookit
+### Install CUDA Tookit
 4)
