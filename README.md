@@ -34,6 +34,7 @@ Image registration is one of the most critical problems in radiology targeting t
 5) Path addition (`export PATH=/usr/local/cuda-10.0/bin${PATH:+:${PATH}}` and `export LD_LIBRARY_PATH=/usr/local/cuda-10.0/lib64\${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}`)
 
 ### Install cuDNN
-
+1) Download [cuDNN debian installation file](https://developer.nvidia.com/rdp/cudnn-archive) (cuda 8.0 is set up)
+2) cd to download directory and run `dpkg -i libcudnn7_7.1.4.18-1+cuda8.0_amd64.deb`
+3) 
 TODO: [instructions](https://developer.download.nvidia.com/compute/machine-learning/cudnn/secure/v6/prod/Doc/cudnn_install-2.txt?2I7fYL3cbCCjqkcp9DVkGdAnpYz78qHM6kSlxTap2JBAji-5VpUN1Ovj_DKD8oGsUhKx6X7lTVGMe0STCdKAFVlLCKOApJR7B_9OPqBRij4UXBEqvK0KHS2TOQMDxzoIva1_UEPYll7qCc6hYrpYxgTlVHdAfVi8b86nPZ2pTeilSBFG) [download page](https://developer.nvidia.com/rdp/cudnn-archive) (cuda 8.0 is set up)
-
