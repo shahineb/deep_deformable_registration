@@ -24,7 +24,7 @@ Image registration is one of the most critical problems in radiology targeting t
 2) `wget https://repo.anaconda.com/archive/Anaconda3-5.3.0-Linux-x86_64.sh` (or latest version)
 3) `sh` the downloaded file and follow instructions (installation takes few minutes)
 4) Add activation of environment at the end of bashrc (`echo "conda activate main" >> /root/.bashrc`)
-5) Create environment from environment spec file (`conda create -n main --file thera_reg_oma/conda-env.txt`)
+5) Create environment from environment spec file (`conda env create -n main --file thera_reg_oma/environment.txt`)
 
 ### Install CUDA Tookit
 1) Install linux headers (`apt-get install linux-headers-generic`)
