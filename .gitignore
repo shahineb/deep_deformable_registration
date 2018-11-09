@@ -107,6 +107,8 @@ venv.bak/
 .DS_Store
 */.DS_Store
 
+# Pycharm files
+.idea
 
 # Readings
 docs/readings/image_registration
