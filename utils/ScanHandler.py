@@ -26,7 +26,7 @@ class ScanHandler:
     def interact_display(self, ct_scan):
         int_slider = widgets.IntSlider(
             min=0, max=ct_scan.shape[0] - 1, step=1, value=10
-        )
+            )
         interact(self.show, z=int_slider, ct_scan=fixed(ct_scan))
 
     def display_n_slices(self, ct_scan, n):

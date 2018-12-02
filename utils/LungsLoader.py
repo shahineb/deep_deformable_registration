@@ -138,7 +138,7 @@ class LungsLoader:
         if scan_id not in self.scans:
             raise IndexError(
                 f"Scan id {scan_id} not found in loaded scans. Make sure the file exists on this computer"
-            )
+                )
         if self._cache:
             if scan_id not in self._cache_scans["not_resampled"]:
                 (ct_scan, origin, spacing) = self._load_itk(self.scans[scan_id])
@@ -147,7 +147,7 @@ class LungsLoader:
                     resampled = self._resample(ct_scan, origin, spacing, 1, 1, 1)
                     self._cache_scans["resampled"][scan_id] = (
                         resampled, np.array([0.0, 0.0, 0.0]), np.array([1.0, 1.0, 1.0])
-                    )
+                        )
                     return self._cache_scans["resampled"][scan_id]
                 else:
                     return ct_scan, origin, spacing
@@ -177,12 +177,12 @@ class LungsLoader:
             max_depth = max(max_depth, res.shape[0])
         max_width, max_height, max_depth = (
             int(ratio_width * max_width), int(ratio_width * max_height), int(ratio_depth * max_depth)
-        )
+            )
         for scan_id in scan_ids:
             ct_scan, origin, spacing = self.get_scan(scan_id, resample=True)
             yield self._rescale_scan(
                 ct_scan, origin, spacing, max_width, max_height, max_depth, normalize=True
-            )
+                )
 
     def get_scan_reduced(self, scan_id):
         """
