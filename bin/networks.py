@@ -7,7 +7,8 @@ from keras.models import Model
 from keras.layers import Conv3D, Input, UpSampling3D, concatenate, LeakyReLU
 from keras.initializers import RandomNormal
 
-sys.path.append("../utils")
+# sys.path.append("../../../src/layers")
+sys.path.append("../../../voxelmorph_review/voxelmorph/ext/neuron/neuron")
 from layers import SpatialTransformer
 
 
@@ -33,13 +34,13 @@ def unet_core(vol_size, enc_nf, dec_nf):
 
     # Up-sample path (decoder)
     x = x_enc[-1]
-    for i, nf in enumerate(dec_nf[:-2]):
+    for i, nf in enumerate(dec_nf[:-3]):
         x = conv_block(x, nf)
         x = UpSampling3D()(x)
         x = concatenate([x, x_enc[-i - 2]])
 
+    x = conv_block(x, dec_nf[-3])
     x = conv_block(x, dec_nf[-2])
-    x = conv_block(x, dec_nf[-1])
 
     # set back to full size
     x = UpSampling3D()(x)
@@ -63,7 +64,7 @@ def voxelmorph_net(vol_size, enc_nf, dec_nf):
                   kernel_initializer=RandomNormal(mean=0.0, stddev=1e-5))(x)
 
     # warp the source with the flow
-    y = SpatialTransformer(interp_method='linear')([src, flow])
+    y = SpatialTransformer(interp_method='linear', indexing='ij')([src, flow])
     #  prepare model
     model = Model(inputs=[src, tgt], outputs=[y, flow])
     return model

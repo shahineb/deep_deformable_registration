@@ -34,8 +34,8 @@ def mnist_generator(n_sample, seed=SEED):
     while i < n_sample:
         src = random.choice(x_train).reshape(vol_shape)
         tgt = image_gen.random_transform(src)
-        src = src[np.newaxis, :, :, np.newaxis]
-        tgt = tgt[np.newaxis, :, :, np.newaxis]
+        src = src[np.newaxis, :, :, :, np.newaxis]
+        tgt = tgt[np.newaxis, :, :, :, np.newaxis]
         i += 1
         yield ([src, tgt], [tgt, zeros])
 
