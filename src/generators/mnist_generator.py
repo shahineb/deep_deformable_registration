@@ -40,9 +40,44 @@ def mnist_generator(n_sample, seed=SEED):
         yield ([src, tgt], [tgt, zeros])
 
 
-def plot_vol(volume):
-    # TODO : shouldnt be here, to be set in propoer plotting framework
-    fig = plt.figure()
+def explode(data):
+    shape_arr = np.array(data.shape)
+    size = shape_arr[:3]*2 - 1
+    exploded = np.zeros(np.concatenate([size, shape_arr[3:]]), dtype=data.dtype)
+    exploded[::2, ::2, ::2] = data
+    return exploded
+
+def expand_coordinates(indices):
+    x, y, z = indices
+    x[1::2, :, :] += 1
+    y[:, 1::2, :] += 1
+    z[:, :, 1::2] += 1
+    return x, y, z
+
+
+def plot_vol(cube, angle=0):
+    def normalize(cube):
+        max_val = np.max(cube)
+        min_val = np.min(cube)
+        cube = (cube - min_val) / (max_val - min_val)
+        return cube
+    vol_size = int(np.round(np.power(x_train[0].shape[0], 1 / 3)))
+    cube = normalize(cube)
+
+    facecolors = plt.cm.viridis(cube)
+    facecolors[:,:,:,-1] = cube
+    facecolors = explode(facecolors)
+
+    filled = facecolors[:,:,:,-1] != 0
+    x, y, z = expand_coordinates(np.indices(np.array(filled.shape) + 1))
+
+    fig = plt.figure(figsize=(20/2.54, 18/2.54))
     ax = fig.gca(projection='3d')
-    ax.voxels(volume, edgecolor='k')
+    ax.view_init(30, angle)
+    ax.set_xlim(right=vol_size*2)
+    ax.set_ylim(top=vol_size*2)
+    ax.set_zlim(top=vol_size*2)
+
+    ax.voxels(x, y, z, filled, facecolors=facecolors)
+    plt.tight_layout()
     plt.show()
