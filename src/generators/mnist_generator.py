@@ -42,10 +42,11 @@ def mnist_generator(n_sample, seed=SEED):
 
 def explode(data):
     shape_arr = np.array(data.shape)
-    size = shape_arr[:3]*2 - 1
+    size = shape_arr[:3] * 2 - 1
     exploded = np.zeros(np.concatenate([size, shape_arr[3:]]), dtype=data.dtype)
     exploded[::2, ::2, ::2] = data
     return exploded
+
 
 def expand_coordinates(indices):
     x, y, z = indices
@@ -65,18 +66,18 @@ def plot_vol(cube, angle=0):
     cube = normalize(cube)
 
     facecolors = plt.cm.viridis(cube)
-    facecolors[:,:,:,-1] = cube
+    facecolors[:, :, :, -1] = cube
     facecolors = explode(facecolors)
 
-    filled = facecolors[:,:,:,-1] != 0
+    filled = facecolors[:, :, :, -1] != 0
     x, y, z = expand_coordinates(np.indices(np.array(filled.shape) + 1))
 
-    fig = plt.figure(figsize=(20/2.54, 18/2.54))
+    fig = plt.figure(figsize=(20 / 2.54, 18 / 2.54))
     ax = fig.gca(projection='3d')
     ax.view_init(30, angle)
-    ax.set_xlim(right=vol_size*2)
-    ax.set_ylim(top=vol_size*2)
-    ax.set_zlim(top=vol_size*2)
+    ax.set_xlim(right=vol_size * 2)
+    ax.set_ylim(top=vol_size * 2)
+    ax.set_zlim(top=vol_size * 2)
 
     ax.voxels(x, y, z, filled, facecolors=facecolors)
     plt.tight_layout()
