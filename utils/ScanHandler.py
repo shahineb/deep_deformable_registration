@@ -1,5 +1,7 @@
 import os
 from ipywidgets import interact, fixed, widgets
+import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
 
 # Change cur dir to project root
 base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
@@ -70,7 +72,7 @@ class ScanHandler:
             min_val = np.min(cube)
             cube = (cube - min_val) / (max_val - min_val)
             return cube
-        vol_size = int(np.round(np.power(x_train[0].shape[0], 1 / 3)))
+        vol_size = max(ct_scan.shape)
         ct_scan = normalize(ct_scan)
 
         facecolors = self._plt.cm.viridis(ct_scan)

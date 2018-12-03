@@ -5,7 +5,7 @@ from keras.models import Model
 import keras.layers as KL
 from keras.regularizers import l1
 from keras.layers import Input, concatenate
-from utils import blocks
+import blocks.blocks as blocks
 
 
 def unet(vol_size, enc_nf, dec_nf):
