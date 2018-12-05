@@ -49,7 +49,7 @@ def dict_to_string(object, key="", paramsList=[]):
     return "_".join(paramsList)
 
 
-def write_file_name(root, suffix, params={}, timestamp=False):
+def write_file_name(root, suffix="", params={}, timestamp=False):
     """
     Generates saving name for a file
     Name format : root_param1Value1_param2Value2_param3Value3_..._timestamp.suffix

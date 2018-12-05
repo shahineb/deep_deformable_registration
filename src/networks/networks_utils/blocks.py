@@ -71,7 +71,7 @@ class ConvBlock(Block):
         if self.activation_:
             Activation = getattr(KL, self.activation_)
             x = Activation(**self.activation_kwargs_)(x)
-        if self.normalization_:
+        if self.normalize_:
             x = KL.BatchNormalization(**self.norm_kwargs_)(x)
         return x
 

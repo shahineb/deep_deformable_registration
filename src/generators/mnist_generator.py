@@ -10,7 +10,7 @@ from LungsLoader import LungsLoader
 ##############
 
 SEED = 1
-MNIST_DIRECTORY = "../../data/3d-mnist"
+MNIST_DIRECTORY = "../../../data/3d-mnist"
 DATASET_NAME = "full_dataset_vectors.h5"
 ORIGIN = np.array([0., 0., 0.])
 SPACING = np.array([1., 1., 1.])
