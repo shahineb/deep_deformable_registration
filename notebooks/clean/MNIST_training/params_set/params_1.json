@@ -1,0 +1,22 @@
+{
+  "conv_block": {
+    "activation": "LeakyReLU",
+    "normalize": 1,
+    "conv_kwargs": {
+      "kernel_size": 3,
+      "padding": "same",
+      "kernel_initializer": "he_normal"
+    }
+  },
+  "voxelmorph":{
+    "input_shape": [72, 72, 72],
+    "nf_enc": [8, 16, 32],
+    "nf_dec": [32, 16, 8, 8, 3]
+  },
+  "lr": 0.01,
+  "data_loss": "mse",
+  "reg_param": 0.01,
+  "initial_epoch": 0,
+  "nb_epochs": 100,
+  "steps_per_epoch": 100
+}
