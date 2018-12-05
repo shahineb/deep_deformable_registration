@@ -5,6 +5,18 @@ from keras.preprocessing import image
 from keras.utils import normalize
 import random
 
+## TO EDIT
+import sys
+sys.path.append("../../utils")
+from LungsLoader import LungsLoader
+loader = LungsLoader()
+origin = np.array([0., 0., 0.])
+spacing = np.array([1., 1., 1.])
+new_width = 72
+new_height = 72
+new_depth = 72
+##############
+
 SEED = 1
 MNIST_DIRECTORY = "../../data/3d-mnist"
 DATASET_NAME = "full_dataset_vectors.h5"
@@ -42,7 +54,9 @@ def mnist_generator(n_sample, seed=SEED):
     while i < n_sample:
         src = random.choice(x_train).reshape(vol_shape)
         tgt = image_gen.random_transform(src)
-        src = src[np.newaxis, :, :, :, np.newaxis] - 0.5
-        tgt = tgt[np.newaxis, :, :, :, np.newaxis] - 0.5
+        src = loader._rescale_scan(src, origin, spacing, new_width, new_height, new_depth)[0]
+        tgt = loader._rescale_scan(tgt, origin, spacing, new_width, new_height, new_depth)[0]
+        src = 1024 * src[np.newaxis, :, :, :, np.newaxis]
+        tgt = 1024 * tgt[np.newaxis, :, :, :, np.newaxis]
         i += 1
         yield ([src, tgt], [tgt, zeros])

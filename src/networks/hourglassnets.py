@@ -3,7 +3,7 @@ keras utilities defining some default hourglass network achitectures
 """
 from keras.models import Model
 import keras.layers as KL
-from keras.regularizers import l1
+from keras.regularizers import l1, l2
 from keras.layers import Input, concatenate
 import blocks.blocks as blocks
 
@@ -17,14 +17,17 @@ def unet(vol_size, enc_nf, dec_nf):
     """
     def unet_conv_block(input, n_filters, strides=1):
         activation = 'LeakyReLU'
+        normalize = True
         leakyrelu_params = {'alpha': 0.2}
         conv_params = {'filters': n_filters,
                        'kernel_size': 3,
                        'padding': 'same',
                        'kernel_initializer': 'he_normal',
+                       'kernel_regularizer': l2(0.01),
                        'strides': strides}
         x = blocks.conv_block(input,
                               activation=activation,
+                              normalization=normalize,
                               conv_kwargs=conv_params,
                               activation_kwargs=leakyrelu_params
                               )
