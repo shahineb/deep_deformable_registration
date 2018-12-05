@@ -2,24 +2,23 @@ import os
 import numpy as np
 import h5py
 from keras.preprocessing import image
-from keras.utils import normalize
 import random
 
-## TO EDIT
 import sys
 sys.path.append("../../utils")
 from LungsLoader import LungsLoader
-loader = LungsLoader()
-origin = np.array([0., 0., 0.])
-spacing = np.array([1., 1., 1.])
-new_width = 72
-new_height = 72
-new_depth = 72
 ##############
 
 SEED = 1
 MNIST_DIRECTORY = "../../data/3d-mnist"
 DATASET_NAME = "full_dataset_vectors.h5"
+ORIGIN = np.array([0., 0., 0.])
+SPACING = np.array([1., 1., 1.])
+TRAIN_WIDTH = 72
+TRAIN_HEIGHT = 72
+TRAIN_DEPTH = 72
+INTENSITY = 1024
+
 
 kwds_generator = {'rotation_range': 180,
                   'width_shift_range': 1.0,
@@ -28,6 +27,7 @@ kwds_generator = {'rotation_range': 180,
                   'horizontal_flip': True,
                   'vertical_flip': True}
 image_gen = image.ImageDataGenerator(**kwds_generator)
+loader = LungsLoader()
 
 
 with h5py.File(os.path.join(MNIST_DIRECTORY, DATASET_NAME), 'r') as dataset:
@@ -35,13 +35,25 @@ with h5py.File(os.path.join(MNIST_DIRECTORY, DATASET_NAME), 'r') as dataset:
     x_test = dataset["X_test"][:]
 
 
-def mnist_generator(n_sample, seed=SEED):
+def mnist_generator(n_sample,
+                    seed=SEED,
+                    origin=ORIGIN,
+                    spacing=SPACING,
+                    new_width=TRAIN_WIDTH,
+                    new_height=TRAIN_HEIGHT,
+                    new_depth=TRAIN_DEPTH,
+                    intensity=INTENSITY):
     """Generator for image registration training on Mnist-3D dataset
 
     Args:
         n_sample (int): dataset size
         seed (int): randomization seed
-
+        origin (numpy.array): origins of the ct_scan
+        spacing (numpy.array): spacing of the ct_scan
+        new_width (int): width to resize to
+        new_height (int): height to resize to
+        new_depth (int): depth to resize to
+        intensity (float): factor to rescale array's intensity
     Returns:
         [src, tgt]: source volume and target augmented volume
     """
@@ -52,11 +64,15 @@ def mnist_generator(n_sample, seed=SEED):
     i = 0
     np.random.seed(seed)
     while i < n_sample:
+        # Select random sample
         src = random.choice(x_train).reshape(vol_shape)
+        # Augment sample to generate target image
         tgt = image_gen.random_transform(src)
+        # Rescale inputs to wished size
         src = loader._rescale_scan(src, origin, spacing, new_width, new_height, new_depth)[0]
         tgt = loader._rescale_scan(tgt, origin, spacing, new_width, new_height, new_depth)[0]
-        src = 1024 * src[np.newaxis, :, :, :, np.newaxis]
-        tgt = 1024 * tgt[np.newaxis, :, :, :, np.newaxis]
+        # Rescale intensity
+        src = intensity * src[np.newaxis, :, :, :, np.newaxis]
+        tgt = intensity * tgt[np.newaxis, :, :, :, np.newaxis]
         i += 1
         yield ([src, tgt], [tgt, zeros])
