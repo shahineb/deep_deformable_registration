@@ -43,19 +43,17 @@ def mnist_generator(n_sample,
                     new_height=TRAIN_HEIGHT,
                     new_depth=TRAIN_DEPTH,
                     intensity=INTENSITY):
-    """Generator for image registration training on Mnist-3D dataset
-
-    Args:
-        n_sample (int): dataset size
-        seed (int): randomization seed
-        origin (numpy.array): origins of the ct_scan
-        spacing (numpy.array): spacing of the ct_scan
-        new_width (int): width to resize to
-        new_height (int): height to resize to
-        new_depth (int): depth to resize to
-        intensity (float): factor to rescale array's intensity
-    Returns:
-        [src, tgt]: source volume and target augmented volume
+    """
+    Generator for image registration training on Mnist-3D dataset
+    :param n_sample: (int) dataset size
+    :param seed: (int) randomization seed
+    :param origin: (np.array) origins of the ct_scan
+    :param spacing: (np.array) spacing of the ct_scan
+    :param new_width: (int) width to resize to
+    :param new_height: (int) height to resize to
+    :param new_depth: (int) depth to resize to
+    :param intensity: (int) factor to rescale array's intensity
+    :return: [src, tgt]: source volume and target augmented volume
     """
     vol_size = int(np.round(np.power(x_train[0].shape[0], 1 / 3)))
     vol_shape = (vol_size, vol_size, vol_size)
@@ -69,8 +67,8 @@ def mnist_generator(n_sample,
         # Augment sample to generate target image
         tgt = image_gen.random_transform(src)
         # Rescale inputs to wished size
-        src = loader._rescale_scan(src, origin, spacing, new_width, new_height, new_depth)[0]
-        tgt = loader._rescale_scan(tgt, origin, spacing, new_width, new_height, new_depth)[0]
+        src = loader.rescale_scan(src, origin, spacing, new_width, new_height, new_depth)[0]
+        tgt = loader.rescale_scan(tgt, origin, spacing, new_width, new_height, new_depth)[0]
         # Rescale intensity
         src = intensity * src[np.newaxis, :, :, :, np.newaxis]
         tgt = intensity * tgt[np.newaxis, :, :, :, np.newaxis]

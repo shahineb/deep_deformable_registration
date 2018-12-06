@@ -91,7 +91,7 @@ class LungsLoader:
         return np.around(sitk.GetArrayFromImage(result))
 
     @staticmethod
-    def _rescale_scan(ct_scan, origin, spacing, new_width, new_height, new_depth, normalize=True):
+    def rescale_scan(ct_scan, origin, spacing, new_width, new_height, new_depth, normalize=True):
         """
         Rescales a given scan using the SimpleITK resampler.
         :param ct_scan: Original data.
@@ -180,7 +180,7 @@ class LungsLoader:
             )
         for scan_id in scan_ids:
             ct_scan, origin, spacing = self.get_scan(scan_id, resample=True)
-            yield self._rescale_scan(
+            yield self.rescale_scan(
                 ct_scan, origin, spacing, max_width, max_height, max_depth, normalize=True
                 )
 

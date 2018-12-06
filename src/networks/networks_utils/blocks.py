@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
-import keras.layers as KL
-from keras import backend as K
+import keras.layers as kl
+from keras import backend as k
 
 
 class Block(object):
@@ -60,17 +60,17 @@ class ConvBlock(Block):
     def update_norm_kwargs(self, params):
         self.norm_kwargs_.update(params)
 
-    def build(self, input):
-        ndims = Block.get_input_dimension(input)
+    def build(self, inp):
+        ndims = Block.get_input_dimension(inp)
 
-        Conv = getattr(KL, 'Conv%dD' % ndims)
-        x = Conv(**self.conv_kwargs_)(input)
+        conv = getattr(kl, 'Conv%dD' % ndims)
+        x = conv(**self.conv_kwargs_)(inp)
 
         if self.activation_:
-            Activation = getattr(KL, self.activation_)
-            x = Activation(**self.activation_kwargs_)(x)
+            activation = getattr(kl, self.activation_)
+            x = activation(**self.activation_kwargs_)(x)
         if self.normalize_:
-            x = KL.BatchNormalization(**self.norm_kwargs_)(x)
+            x = kl.BatchNormalization(**self.norm_kwargs_)(x)
         return x
 
 
@@ -84,19 +84,21 @@ class SqueezeExciteBlock(Block):
     def build(self, inp):
         ndims = Block.get_input_dimension(inp)
 
-        channel_axis = 1 if K.image_data_format() == "channels_first" else -1
+        channel_axis = 1 if k.image_data_format() == "channels_first" else -1
         filters = inp._keras_shape[channel_axis]
         se_shape = tuple([1] * ndims) + (filters,)
-        global_average_pooling = getattr(KL, 'GlobalAveragePooling%dD' % ndims)
+        global_average_pooling = getattr(kl, 'GlobalAveragePooling%dD' % ndims)
 
         se = global_average_pooling()(inp)
-        se = KL.Reshape(se_shape)(se)
-        se = KL.Dense(filters // self.ratio_, activation='relu', kernel_initializer='he_normal', use_bias=False)(se)
-        se = KL.Dense(filters, activation='sigmoid', kernel_initializer='he_normal', use_bias=False)(se)
+        se = kl.Reshape(se_shape)(se)
+        se = kl.Dense(
+            filters // self.ratio_, activation='relu', kernel_initializer='he_normal', use_bias=False
+        )(se)
+        se = kl.Dense(filters, activation='sigmoid', kernel_initializer='he_normal', use_bias=False)(se)
 
-        if K.image_data_format() == 'channels_first':
+        if k.image_data_format() == 'channels_first':
             permutation = (ndims,) + tuple(range(1, ndims))
-            se = KL.Permute(permutation)(se)
+            se = kl.Permute(permutation)(se)
 
-        x = KL.multiply([inp, se])
+        x = kl.multiply([inp, se])
         return x

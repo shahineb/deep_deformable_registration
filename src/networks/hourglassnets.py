@@ -3,7 +3,7 @@ keras utilities defining some default hourglass network achitectures
 """
 from abc import ABCMeta, abstractmethod
 from keras.models import Model
-import keras.layers as KL
+import keras.layers as kl
 from keras.layers import Input, concatenate
 
 
@@ -44,7 +44,7 @@ class Unet(HourglassNet):
 
     def build(self):
         # Set proper upsampling layer for decoding
-        upsample_layer = getattr(KL, 'UpSampling%dD' % self.ndims_)
+        upsample_layer = getattr(kl, 'UpSampling%dD' % self.ndims_)
 
         # Inputs
         src = Input(shape=self.input_shape_ + (1,))
