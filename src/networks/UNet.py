@@ -18,7 +18,6 @@ class UNet3D:
         # Downward
         for i in range(self.depth):
             n_kernels = self.n_base_filters * (2 ** i)
-            print(n_kernels)
             conv_a = kl.Conv3D(
                 n_kernels, kernel_size=3, activation="relu", padding="same", name=f"conv_a_{i}"
             )(cur_layer)

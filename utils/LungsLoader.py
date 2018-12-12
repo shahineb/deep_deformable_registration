@@ -163,51 +163,61 @@ class LungsLoader:
             else:
                 return ct_scan, origin, spacing
 
-    def preprocess_scans(self, scan_ids, width, height, depth):
+    def preprocess_scans(self, scan_ids, width, height, depth, loop=False):
         """
         Preprocess a bulk of scan by rescaling each image to the target dimensions.
         :param scan_ids: List of the scan ids to preprocess.
         :param width: Target width for the preprocessed scans.
         :param height: Target height for the preprocessed scans.
         :param depth: Target depth for the preprocessed scans.
+        :param loop: If true, endlessly loop on data (default: false).
         :return: A generator of ct_scan, origin, spacing tuples.
         """
-        for scan_id in scan_ids:
-            ct_scan, origin, spacing = self.get_scan(scan_id, resample=True)
-            yield self.rescale_scan(
-                ct_scan, origin, spacing, width, height, depth, normalize=True
-            )
+        while True:
+            for scan_id in scan_ids:
+                ct_scan, origin, spacing = self.get_scan(scan_id, resample=True)
+                yield self.rescale_scan(
+                    ct_scan, origin, spacing, width, height, depth, normalize=True
+                )
+            if not loop:
+                break
 
-    def preprocess_segmentations(self, scan_ids, width, height, depth):
+    def preprocess_segmentations(self, scan_ids, width, height, depth, ohe=None, loop=False):
         """
         Retrieves the segmentation data for a bulk of scans and rescales it to the target dimensions.
         :param scan_ids: List of the scan ids to retrieve.
         :param width: Target width for the retrieved segmentation arrays.
         :param height: Target height for the retrieved segmentation arrays.
         :param depth: Target depth for the retrieved segmentation arrays.
+        :param ohe: SKlearn one hot encoder trained to process the data. If this argument is none,
+        no encoding is performed. If an encoder is given the data is preprocessed to encode the
+        classes.
+        :param loop: If true, endlessly loop on data (default: false).
         :return: A generator of (scan array, origin, spacing).
         """
         seg_folder = os.path.join(self._data_folder, "seg-lungs-LUNA16")
-        for scan_id in scan_ids:
-            f = os.path.join(seg_folder, scan_id + ".mhd")
-            ct_scan, origin, spacing = self._load_itk(f)
-            ct_scan = self._resample(
-                ct_scan, origin, spacing, 1, 1, 1, interpolator=sitk.sitkNearestNeighbor
-            )
-            yield self.rescale_scan(
-                ct_scan, np.array([0.0, 0.0, 0.0]), np.array([1.0, 1.0, 1.0]),
-                width, height, depth, normalize=False, interpolator=sitk.sitkNearestNeighbor
-            )
-
-    def get_scan_reduced(self, scan_id):
-        """
-        Function to retrieve the reduced data concerning a specific scan.
-        :param scan_id: Scan id (the list is available through get_scan_ids).
-        :return: ct_scan of shape (z, x, y), origin, spacing
-        """
-        # TODO implement that, will be similar to get_scan but must reduce the data
-        # TODO NB we must put the reducing in the data utility and not here
-        raise NotImplementedError
+        while True:
+            for scan_id in scan_ids:
+                f = os.path.join(seg_folder, scan_id + ".mhd")
+                ct_scan, origin, spacing = self._load_itk(f)
+                ct_scan = self._resample(
+                    ct_scan, origin, spacing, 1, 1, 1, interpolator=sitk.sitkNearestNeighbor
+                )
+                ct_scan, origin, spacing = self.rescale_scan(
+                    ct_scan, np.array([0.0, 0.0, 0.0]), np.array([1.0, 1.0, 1.0]),
+                    width, height, depth, normalize=False, interpolator=sitk.sitkNearestNeighbor
+                )
+                if ohe is None:
+                    yield ct_scan, origin, spacing
+                else:
+                    shape = ct_scan.shape
+                    n_classes = len(ohe.categories_[0])
+                    ct_scan = ohe.transform(
+                        ct_scan.flatten().reshape(-1, 1)
+                    ).toarray().reshape(shape + (n_classes,))
+                    yield ct_scan, origin, spacing
+            if not loop:
+                break
 
     @staticmethod
     def _load_itk(filename):
