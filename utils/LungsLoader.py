@@ -58,7 +58,8 @@ class LungsLoader:
         return img
 
     @staticmethod
-    def _resample(ct_scan, origin, spacing, spacing_x, spacing_y, spacing_z):
+    def _resample(ct_scan, origin, spacing, spacing_x, spacing_y, spacing_z,
+                  interpolator=sitk.sitkLinear):
         """
         Takes as input the informations about the scan to resample and the new spacing and return
         the array view of the resampled scan.
@@ -68,6 +69,7 @@ class LungsLoader:
         :param spacing_x: New spacing along dimension x.
         :param spacing_y: New spacing along dimension y.
         :param spacing_z: New spacing along dimension z.
+        :param interpolator: Interpolator used for the resampling action (default to sitk.sitkLinear).
         :return: An array (the resampled image) of shape (z, x, y).
         """
         img = LungsLoader._get_itk_from_scan(ct_scan, origin, spacing)
@@ -86,12 +88,13 @@ class LungsLoader:
         f.SetOutputOrigin(img.GetOrigin())
         f.SetOutputSpacing((spacing_x, spacing_y, spacing_z))
         f.SetSize((size_x, size_y, size_z))
-        f.SetInterpolator(sitk.sitkLinear)
+        f.SetInterpolator(interpolator)
         result = f.Execute(img)
         return np.around(sitk.GetArrayFromImage(result))
 
     @staticmethod
-    def rescale_scan(ct_scan, origin, spacing, new_width, new_height, new_depth, normalize=True):
+    def rescale_scan(ct_scan, origin, spacing, new_width, new_height, new_depth,
+                     normalize=True, interpolator=sitk.sitkLinear):
         """
         Rescales a given scan using the SimpleITK resampler.
         :param ct_scan: Original data.
@@ -101,6 +104,7 @@ class LungsLoader:
         :param new_height: Height to be resized to (shape[2]).
         :param new_depth: Depth to be resized to (shape[0])
         :param normalize: Whether or not data should be normalized (default to True).
+        :param interpolator: Interpolator used for the resampling action (default to sitk.sitkLinear).
         :return: The rescaled ct_scan, origin, spacing.
         """
         if not np.all(origin == 0):
@@ -121,7 +125,7 @@ class LungsLoader:
         size_z = new_depth
         f.SetOutputSpacing((spacing_x, spacing_y, spacing_z))
         f.SetSize((size_x, size_y, size_z))
-        f.SetInterpolator(sitk.sitkLinear)
+        f.SetInterpolator(interpolator)
         result = f.Execute(img)
         new_scan = sitk.GetArrayFromImage(result)
         if normalize:
@@ -159,30 +163,41 @@ class LungsLoader:
             else:
                 return ct_scan, origin, spacing
 
-    def preprocess_scans(self, scan_ids, ratio_width=1, ratio_depth=1):
+    def preprocess_scans(self, scan_ids, width, height, depth):
         """
-        Preprocess a bulk of scan by reshaping each image to the max size along each dimension.
-        WARNING: this will need some review to be used with rectangular (not much) but especially
-        with images with different width / height ratios.
+        Preprocess a bulk of scan by rescaling each image to the target dimensions.
         :param scan_ids: List of the scan ids to preprocess.
-        :param ratio_width: (new_width, new_height) = (old_width, old_height) * ratio (defaults to 1)
-        :param ratio_depth: new_depth = old_depth * ratio (defaults to 1)
+        :param width: Target width for the preprocessed scans.
+        :param height: Target height for the preprocessed scans.
+        :param depth: Target depth for the preprocessed scans.
         :return: A generator of ct_scan, origin, spacing tuples.
         """
-        max_width, max_height, max_depth = 0, 0, 0
-        for scan_id in scan_ids:
-            res, _, _ = self.get_scan(scan_id, resample=True)
-            max_width = max(max_width, res.shape[1])
-            max_height = max(max_height, res.shape[2])
-            max_depth = max(max_depth, res.shape[0])
-        max_width, max_height, max_depth = (
-            int(ratio_width * max_width), int(ratio_width * max_height), int(ratio_depth * max_depth)
-            )
         for scan_id in scan_ids:
             ct_scan, origin, spacing = self.get_scan(scan_id, resample=True)
             yield self.rescale_scan(
-                ct_scan, origin, spacing, max_width, max_height, max_depth, normalize=True
-                )
+                ct_scan, origin, spacing, width, height, depth, normalize=True
+            )
+
+    def preprocess_segmentations(self, scan_ids, width, height, depth):
+        """
+        Retrieves the segmentation data for a bulk of scans and rescales it to the target dimensions.
+        :param scan_ids: List of the scan ids to retrieve.
+        :param width: Target width for the retrieved segmentation arrays.
+        :param height: Target height for the retrieved segmentation arrays.
+        :param depth: Target depth for the retrieved segmentation arrays.
+        :return: A generator of (scan array, origin, spacing).
+        """
+        seg_folder = os.path.join(self._data_folder, "seg-lungs-LUNA16")
+        for scan_id in scan_ids:
+            f = os.path.join(seg_folder, scan_id + ".mhd")
+            ct_scan, origin, spacing = self._load_itk(f)
+            ct_scan = self._resample(
+                ct_scan, origin, spacing, 1, 1, 1, interpolator=sitk.sitkNearestNeighbor
+            )
+            yield self.rescale_scan(
+                ct_scan, np.array([0.0, 0.0, 0.0]), np.array([1.0, 1.0, 1.0]),
+                width, height, depth, normalize=False, interpolator=sitk.sitkNearestNeighbor
+            )
 
     def get_scan_reduced(self, scan_id):
         """
