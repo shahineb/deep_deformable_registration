@@ -71,6 +71,20 @@ def already_exists(path):
     return os.path.isfile(path)
 
 
+def copy_file_to(src_path, tgt_dir_path, overwrite=False):
+    """
+    Copies specified file to directory
+    """
+    if not (already_exists(src_path) and already_exists(tgt_dir_path)):
+        raise RuntimeError("Invalid specified path")
+    else:
+        tgt_path = os.path.join(tgt_dir_path, src_path)
+        if already_exists(tgt_path) and not overwrite:
+            raise RuntimeError("File already exists")
+        else:
+            shutil.copyfile(src_path, tgt_dir_path)
+
+
 def save_json(path, jsonFile):
     """
     Dumps dictionnary as json file

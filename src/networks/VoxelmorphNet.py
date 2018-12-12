@@ -1,9 +1,12 @@
+import os
 import sys
 from keras.models import Model
 import keras.layers as KL
 from keras.initializers import RandomNormal
 
-sys.path.append("../../../voxelmorph_review/voxelmorph/ext/neuron/neuron")
+base_dir = os.path.dirname(os.path.realpath(__file__))
+neuron_path = os.path.join(base_dir, "../../../voxelmorph_review/voxelmorph/ext/neuron/neuron")
+sys.path.append(neuron_path)
 from layers import SpatialTransformer
 from hourglassnets import HourglassNet, Unet
 

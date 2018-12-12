@@ -8,14 +8,25 @@ from keras.callbacks import ModelCheckpoint, EarlyStopping
 from keras.regularizers import l2
 
 # Local
-sys.path.append("../../../utils")
-sys.path.append("../../../src/generators")
-sys.path.append("../../../src/networks/networks_utils/")
-sys.path.append("../../../src/networks/")
-sys.path.append("../../../../voxelmorph_review/voxelmorph/ext/neuron/neuron")
-sys.path.append("../../../../voxelmorph_review/voxelmorph/ext/pynd-lib")
-sys.path.append("../../../../voxelmorph_review/voxelmorph/ext/pytools-lib")
-sys.path.append("../../../../voxelmorph_review/voxelmorph/src")
+base_dir = os.path.dirname(os.path.realpath(__file__))
+
+utils_path = os.path.join(base_dir, "../../../utils")
+generators_path = os.path.join(base_dir, "../../../src/generators")
+networks_utils_path = os.path.join(base_dir, "../../../src/networks/networks_utils")
+networks_path = os.path.join(base_dir, "../../../src/networks")
+neuron_path = os.path.join(base_dir, "../../../../voxelmorph_review/voxelmorph/ext/neuron/neuron")
+pynd_path = os.path.join(base_dir, "../../../../voxelmorph_review/voxelmorph/ext/pynd-lib")
+pytools_path = os.path.join(base_dir, "../../../../voxelmorph_review/voxelmorph/ext/pytools-lib")
+src_path = os.path.join(base_dir, "../../../../voxelmorph_review/voxelmorph/src")
+
+sys.path.append(utils_path)
+sys.path.append(generators_path)
+sys.path.append(networks_utils_path)
+sys.path.append(networks_path)
+sys.path.append(neuron_path)
+sys.path.append(pynd_path)
+sys.path.append(pytools_path)
+sys.path.append(src_path)
 from blocks import ConvBlock
 from VoxelmorphNet import VoxelmorphNet
 import IOHandler as io
