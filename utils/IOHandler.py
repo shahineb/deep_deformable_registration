@@ -13,7 +13,7 @@ def mkdir(dir_name, location='', overwrite=False):
     If no location is precised, created in working directory
     Default setting don't allow overwriting if directory already exists
     """
-    path_to_dir = location + "/" + dir_name
+    path_to_dir = os.path.join(location, dir_name)
     if os.path.exists(path_to_dir):
         if overwrite:
             shutil.rmtree(path_to_dir)

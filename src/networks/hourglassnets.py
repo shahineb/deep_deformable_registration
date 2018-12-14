@@ -81,6 +81,28 @@ class Unet(HourglassNet):
 
         return Model(inputs=[src, tgt], outputs=[x])
 
+
+class BiDecoderNet(HourglassNet):
+    """
+    Two entries autoencoder network architecture proposed in Shu Z, Sahasrabudhe M, Guler A, Samaras D,
+    Paragios N, Kokkinos I. Deforming Autoencoders: Unsupervised Disentangling of Shape and Appearance.
+    arXiv preprint arXiv:1806.06503. 2018 Jun 18.
+    with parallel decoding path for linear and deformable registration
+    """
+
+    def __init__(self,
+                 input_shape,
+                 enc_nf,
+                 dec_nf,
+                 squeeze_ratio,
+                 conv_block_enc,
+                 conv_block_dec_deformable):
+        self.input_shape_ = input_shape
+        self.enc_nf_ = enc_nf
+        self.dec_nf_ = dec_nf
+        self.squeeze_ratio_ = squeeze_ratio
+        self.conv_block_enc_ = conv_block_enc
+        self.conv_block_dec_deformable_ = conv_block_dec_deformable
 # TODO : to POO
 #
 # def maria_net(vol_size):

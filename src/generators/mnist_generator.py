@@ -36,7 +36,7 @@ with h5py.File(os.path.join(MNIST_DIRECTORY, DATASET_NAME), 'r') as dataset:
     x_train = dataset["X_train"][:]
     x_test = dataset["X_test"][:]
 
-
+# TODO : change to infinite generator
 def mnist_generator(n_sample,
                     seed=SEED,
                     origin=ORIGIN,
