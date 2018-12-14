@@ -93,7 +93,7 @@ class SqueezeExciteBlock(Block):
         se = kl.Reshape(se_shape)(se)
         se = kl.Dense(
             filters // self.ratio_, activation='relu', kernel_initializer='he_normal', use_bias=False
-        )(se)
+            )(se)
         se = kl.Dense(filters, activation='sigmoid', kernel_initializer='he_normal', use_bias=False)(se)
 
         if k.image_data_format() == 'channels_first':

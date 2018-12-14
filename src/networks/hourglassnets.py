@@ -92,17 +92,48 @@ class BiDecoderNet(HourglassNet):
 
     def __init__(self,
                  input_shape,
-                 enc_nf,
-                 dec_nf,
-                 squeeze_ratio,
+                 enc_params,
+                 dec_params,
+                 squeeze_block,
                  conv_block_enc,
                  conv_block_dec_deformable):
-        self.input_shape_ = input_shape
-        self.enc_nf_ = enc_nf
-        self.dec_nf_ = dec_nf
-        self.squeeze_ratio_ = squeeze_ratio
+        super(BiDecoderNet, self).__init__(input_shape)
+        self.enc_params_ = enc_params
+        self.dec_params_ = dec_params
+        self.squeeze_block_ = squeeze_block
         self.conv_block_enc_ = conv_block_enc
         self.conv_block_dec_deformable_ = conv_block_dec_deformable
+
+    def build(self):
+        # Set proper GAP layer for decoding
+        globalAveragePooling_layer = getattr(kl, 'GlobalAveragePooling%dD' % self.ndims_)
+
+        # Inputs
+        src = Input(shape=self.input_shape_ + (1,))
+        tgt = Input(shape=self.input_shape_ + (1,))
+        x_in = concatenate([src, tgt])
+
+        # Encoding
+        x_enc = [x_in]
+        for i, params in enumerate(self.enc_params_):
+            self.conv_block_enc_.update(params)
+            x_enc.append(self.conv_block_enc_.build(x_enc[-1]))
+
+        x = concatenate(x_enc)
+
+        # Deformable Decoding
+        x_def = self.squeeze_block_.build(x)
+        for i, params in enumerate(self.dec_params_):
+            self.conv_block_dec_deformable_.update(params)
+            x_def = self.conv_block_enc_.build(x_def)
+
+        # Linear Decoding
+        x_lin = globalAveragePooling_layer()(x)
+
+        return Model(inputs=[src, tgt], outputs=[x_def, x_lin])
+
+
+
 # TODO : to POO
 #
 # def maria_net(vol_size):
