@@ -43,7 +43,7 @@ class VoxelmorphNet(HourglassNet):
             # add source segmentation input and wrap up with flow
             src_seg = KL.Input(shape=self.input_shape_ + (1,))
             pred_tgt_seg = SpatialTransformer(interp_method='linear', indexing='ij')([src_seg, flow])
-            return Model(inputs=[src, tgt], outputs=[pred_tgt, flow, pred_tgt_seg])
+            return Model(inputs=[src, tgt, src_seg], outputs=[pred_tgt, flow, pred_tgt_seg])
 
         #  prepare model
         return Model(inputs=[src, tgt], outputs=[pred_tgt, flow])
