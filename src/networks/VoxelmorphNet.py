@@ -19,7 +19,7 @@ class VoxelmorphNet(HourglassNet):
         self.dec_nf_ = dec_nf
         self.conv_block_ = conv_block
 
-    def build(self):
+    def build(self, aux_input=False):
         # Get proper convolutional layer
         conv_layer = getattr(KL, 'Conv%dD' % self.ndims_)
 
@@ -37,6 +37,13 @@ class VoxelmorphNet(HourglassNet):
                           kernel_initializer=RandomNormal(mean=0.0, stddev=1e-5))(x)
 
         # warp the source with the flow
-        y = SpatialTransformer(interp_method='linear', indexing='ij')([src, flow])
+        pred_tgt = SpatialTransformer(interp_method='linear', indexing='ij')([src, flow])
+
+        if aux_input:
+            # add source segmentation input and wrap up with flow
+            src_seg = KL.Input(shape=self.input_shape_ + (1,))
+            pred_tgt_seg = SpatialTransformer(interp_method='linear', indexing='ij')([src_seg, flow])
+            return Model(inputs=[src, tgt], outputs=[pred_tgt, flow, pred_tgt_seg])
+
         #  prepare model
-        return Model(inputs=[src, tgt], outputs=[y, flow])
+        return Model(inputs=[src, tgt], outputs=[pred_tgt, flow])
