@@ -5,7 +5,7 @@ from keras.preprocessing import image
 import random
 
 base_dir = os.path.dirname(os.path.realpath(__file__))
-utils_path = os.path.join(base_dir, "../utils")
+utils_path = os.path.join(base_dir, "../../utils")
 import sys
 sys.path.append(utils_path)
 from LungsLoader import LungsLoader
