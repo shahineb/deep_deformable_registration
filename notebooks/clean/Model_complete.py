@@ -16,9 +16,9 @@ losses_dir = os.path.join(base_dir, 'voxelmorph_review/voxelmorph/src')
 pipe_dir = os.path.join(base_dir, 'thera_reg_oma/notebooks/clean')
 sys.path.append(utils_dir)
 sys.path.append(losses_dir)
-import LungsLoader
+from LungsLoader import LungsLoader
 import losses
-import pipeline_test_set
+from Testing_pipeline import pipeline_test_set
 
 loader = LungsLoader()
 gpu_id = 1
