@@ -137,7 +137,7 @@ class Model:
                         loss=params_train["loss_list"],
                         loss_weights=[1.0, params_train["reg_param"], params_train['seg_reg_param']]
                                                     )
-        model_dir = model_name+"/"
+        model_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)),model_name+"/")
         save_file_name = os.path.join(model_dir, '{epoch:02d}.h5')
         save_callback = ModelCheckpoint(save_file_name, verbose=1, save_best_only=True)
         early_stopping = EarlyStopping(monitor='val_loss',
@@ -168,12 +168,3 @@ class Model:
             self.val_gen = val_gen
         pipeline_test_set(self.model, self.val_gen, model_name, self.segmentation)
         return None
-
-
-
-
-
-
-
-
-
