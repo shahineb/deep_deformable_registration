@@ -1,15 +1,24 @@
 import os
 import numpy as np
-from utils.LungsLoader import LungsLoader
+import sys
 from sklearn.model_selection import train_test_split
 import keras
 import tensorflow as tf
 from keras.backend.tensorflow_backend import set_session
 from keras.optimizers import Adam
 from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
-import losses
 import json
-from notebooks.clean.Testing_pipeline import pipeline_test_set
+
+
+base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../..")
+utils_dir = os.path.join(base_dir, 'thera_reg_oma/utils')
+losses_dir = os.path.join(base_dir, 'voxelmorph_review/voxelmorph/src')
+pipe_dir = os.path.join(base_dir, 'thera_reg_oma/notebooks/clean')
+sys.path.append(utils_dir)
+sys.path.append(losses_dir)
+import LungsLoader
+import losses
+import pipeline_test_set
 
 loader = LungsLoader()
 gpu_id = 1
