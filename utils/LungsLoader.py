@@ -1,6 +1,7 @@
 import os
 import warnings
 import numpy as np
+import random
 import SimpleITK as sitk
 
 # Change cur dir to project root
@@ -163,7 +164,7 @@ class LungsLoader:
             else:
                 return ct_scan, origin, spacing
 
-    def preprocess_scans(self, scan_ids, width, height, depth, loop=False):
+    def preprocess_scans(self, scan_ids, width, height, depth, loop=False, shuffle=False):
         """
         Preprocess a bulk of scan by rescaling each image to the target dimensions.
         :param scan_ids: List of the scan ids to preprocess.
@@ -171,18 +172,21 @@ class LungsLoader:
         :param height: Target height for the preprocessed scans.
         :param depth: Target depth for the preprocessed scans.
         :param loop: If true, endlessly loop on data (default: false).
+        :param shuffle: If true, scans are shuffled (default: false)
         :return: A generator of ct_scan, origin, spacing tuples.
         """
         while True:
+            if shuffle:
+                random.shuffle(scan_ids)
             for scan_id in scan_ids:
                 ct_scan, origin, spacing = self.get_scan(scan_id, resample=True)
                 yield self.rescale_scan(
                     ct_scan, origin, spacing, width, height, depth, normalize=True
-                )
+                    )
             if not loop:
                 break
 
-    def preprocess_segmentations(self, scan_ids, width, height, depth, ohe=None, loop=False):
+    def preprocess_segmentations(self, scan_ids, width, height, depth, ohe=None, loop=False, shuffle=False):
         """
         Retrieves the segmentation data for a bulk of scans and rescales it to the target dimensions.
         :param scan_ids: List of the scan ids to retrieve.
@@ -193,20 +197,23 @@ class LungsLoader:
         no encoding is performed. If an encoder is given the data is preprocessed to encode the
         classes.
         :param loop: If true, endlessly loop on data (default: false).
+        :param shuffle: If true, scans are shuffled (default: false)
         :return: A generator of (scan array, origin, spacing).
         """
         seg_folder = os.path.join(self._data_folder, "seg-lungs-LUNA16")
         while True:
+            if shuffle:
+                random.shuffle(scan_ids)
             for scan_id in scan_ids:
                 f = os.path.join(seg_folder, scan_id + ".mhd")
                 ct_scan, origin, spacing = self._load_itk(f)
                 ct_scan = self._resample(
                     ct_scan, origin, spacing, 1, 1, 1, interpolator=sitk.sitkNearestNeighbor
-                )
+                    )
                 ct_scan, origin, spacing = self.rescale_scan(
                     ct_scan, np.array([0.0, 0.0, 0.0]), np.array([1.0, 1.0, 1.0]),
                     width, height, depth, normalize=False, interpolator=sitk.sitkNearestNeighbor
-                )
+                    )
                 if ohe is None:
                     yield ct_scan, origin, spacing
                 else:
@@ -214,7 +221,7 @@ class LungsLoader:
                     n_classes = len(ohe.categories_[0])
                     ct_scan = ohe.transform(
                         ct_scan.flatten().reshape(-1, 1)
-                    ).toarray().reshape(shape + (n_classes,))
+                        ).toarray().reshape(shape + (n_classes,))
                     yield ct_scan, origin, spacing
             if not loop:
                 break

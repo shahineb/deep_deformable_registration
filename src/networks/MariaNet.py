@@ -1,15 +1,15 @@
 import os
 import sys
+import pickle
 from keras.models import Model
 from keras.regularizers import l1
 import keras.layers as KL
 from keras.initializers import RandomNormal
 
-base_dir = os.path.dirname(os.path.realpath(__file__))
-layers_path = os.path.join(base_dir, "../layers")
-sys.path.append(layers_path)
-from diffeomorphicTransformer import diffeomorphicTransformer3D
-from hourglassnets import BiDecoderNet
+base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../..")
+sys.path.append(base_dir)
+from src.layers.diffeomorphicTransformer import diffeomorphicTransformer3D
+from src.networks.hourglassnets import BiDecoderNet
 
 
 class MariaNet(BiDecoderNet):
@@ -18,17 +18,15 @@ class MariaNet(BiDecoderNet):
                  input_shape,
                  enc_params,
                  dec_params,
+                 conv_block,
                  squeeze_block,
-                 conv_block_enc,
-                 conv_block_dec_deformable,
                  def_flow_nf,
                  lin_flow_nf):
         super(MariaNet, self).__init__(input_shape,
                                        enc_params,
                                        dec_params,
-                                       squeeze_block,
-                                       conv_block_enc,
-                                       conv_block_dec_deformable)
+                                       conv_block,
+                                       squeeze_block)
         self.def_flow_nf_ = def_flow_nf
         self.lin_flow_nf_ = lin_flow_nf
 
@@ -61,4 +59,12 @@ class MariaNet(BiDecoderNet):
         [deformed, displacements] = diffeomorphicTransformer3D()([src, deformable_grad_flow, linear_flow])
 
         #  prepare model
-        return Model(inputs=[src, tgt], outputs=[deformed, displacements])
+        return Model(inputs=[src, tgt], outputs=[deformed, deformable_grad_flow, linear_flow])
+
+    def serialize(self, path):
+        """Dumps object dictionnary as serialized pickle file
+        Args:
+            path (str): dumping path
+        """
+        with open(path, "wb") as f:
+            pickle.dump(self.__dict__, f)
