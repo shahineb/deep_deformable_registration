@@ -28,12 +28,10 @@ def pipeline_test_set(model, gen_val, model_name, segmentation=True):
     # For registration : [[src,tgt],[tgt,zeros]]
     # For segmentation : [src,tgt]
     results = pd.DataFrame()
-    for i in range(len(list(gen_val()))):
+    for val_i in gen_val:
         if not segmentation:
-            val_i = next(gen_val)
             results = pd.concat([results, pipeline(model, val_i[0], val_i[0][1], segmentation)])
         else:
-            val_i = next(gen_val)
             results = pd.concat([results, pipeline(model, val_i[0], val_i[1], segmentation)])
     results.mean().to_csv(model_name+'.csv')
     return None
