@@ -60,8 +60,8 @@ class LunaTrainer:
         """
         self.logger.verbose(f"Number of training scans : {len(train_ids)}\n")
         self.logger.verbose(f"Number of validation scans : {len(val_ids)}\n")
-        pd.DataFrame(train_ids).to_csv(os.path.join(self.config.session_dir, LunaTrainer.train_ids_filename))
-        pd.DataFrame(val_ids).to_csv(os.path.join(self.config.session_dir, LunaTrainer.train_ids_filename))
+        pd.DataFrame(train_ids).to_csv(os.path.join(self.config.session_dir, LunaTrainer.train_ids_filename), index=False, header=False)
+        pd.DataFrame(val_ids).to_csv(os.path.join(self.config.session_dir, LunaTrainer.val_ids_filename), index=False, header=False)
 
         (width, height, depth) = self.config.input_shape
         if self.use_segmentation_:

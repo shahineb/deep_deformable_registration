@@ -53,7 +53,7 @@ class MariaNet(BiDecoderNet):
                                  activation='linear',
                                  name='linear_flow',
                                  kernel_initializer=RandomNormal(mean=0.0, stddev=1e-5),
-                                 kernel_regularizer=l1(1e-5))(x_def)
+                                 kernel_regularizer=l1(1e-5))(x_lin)
 
         # Wrap the source with the flow
         [deformed, displacements] = diffeomorphicTransformer3D()([src, deformable_grad_flow, linear_flow])

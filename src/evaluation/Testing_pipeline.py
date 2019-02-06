@@ -28,13 +28,6 @@ def pipeline_test_set(model, gen_val, model_name, segmentation=True):
     # For registration : [[src,tgt],[tgt,zeros]]
     # For segmentation : [src,tgt]
     results = pd.DataFrame()
-<<<<<<< HEAD:notebooks/chaos/Testing_pipeline.py
-    for Val_i in gen_val:
-        if not segmentation :
-            results = pd.concat([results, pipeline(model, Val_i[0], Val_i[0][1], segmentation)])
-        else :
-            results = pd.concat([results, pipeline(model, Val_i[0], Val_i[1], segmentation)])
-=======
     for i in range(len(list(gen_val()))):
         if not segmentation:
             val_i = next(gen_val)
@@ -42,6 +35,5 @@ def pipeline_test_set(model, gen_val, model_name, segmentation=True):
         else:
             val_i = next(gen_val)
             results = pd.concat([results, pipeline(model, val_i[0], val_i[1], segmentation)])
->>>>>>> refs/remotes/origin/master:src/evaluation/Testing_pipeline.py
     results.mean().to_csv(model_name+'.csv')
     return None
