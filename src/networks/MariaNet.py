@@ -40,20 +40,20 @@ class MariaNet(BiDecoderNet):
         [x_def, x_lin] = bi_decoding_net.output
 
         # Transform the results into a flow field
-        deformable_grad_flow = conv_layer(self.ndims_,
+        deformable_grad_flow = conv_layer(self.def_flow_nf_,
                                           kernel_size=3,
                                           padding='same',
                                           activation='sigmoid',
                                           name='deformable_gradient_flow',
                                           kernel_initializer=RandomNormal(mean=0.0, stddev=1e-5),
-                                          kernel_regularizer=l1(0.01))(x_def)
-        linear_flow = conv_layer(self.ndims_,
+                                          kernel_regularizer=l1(1e-5))(x_def)
+        linear_flow = conv_layer(self.lin_flow_nf_,
                                  kernel_size=3,
                                  padding='same',
                                  activation='linear',
                                  name='linear_flow',
                                  kernel_initializer=RandomNormal(mean=0.0, stddev=1e-5),
-                                 kernel_regularizer=l1(0.01))(x_def)
+                                 kernel_regularizer=l1(1e-5))(x_def)
 
         # Wrap the source with the flow
         [deformed, displacements] = diffeomorphicTransformer3D()([src, deformable_grad_flow, linear_flow])

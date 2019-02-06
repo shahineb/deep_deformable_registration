@@ -1,4 +1,5 @@
 import numpy as np
+import tensorflow as tf
 
 
 def dice(vol1, vol2, labels=None, nargout=1):
@@ -37,3 +38,14 @@ def dice(vol1, vol2, labels=None, nargout=1):
         return dicem
     else:
         return dicem, labels
+
+
+def cross_correlation(vol1, vol2):
+    # TODO : double check cross correlation computation
+    """Computes cross correlation between two arrays
+
+    Args:
+        vol1 (tf.tensor)
+        vol2 (tf.tensor)
+    """
+    return tf.norm(tf.linalg.cross(vol1, vol2))

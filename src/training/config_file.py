@@ -2,7 +2,6 @@ import os
 import sys
 import time
 import keras
-import pickle
 
 base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../..")
 sys.path.append(base_dir)
@@ -12,13 +11,15 @@ import utils.IOHandler as io
 class ConfigFile:
 
     bin_dir = os.path.join(base_dir, "bin")
+    pickle_filename = "config.pickle"
     checkpoints_dirname = "checkpoints"
     checkpoints_format = "chkpt_{epoch:02d}.h5"
     tensorboard_dirname = "tensorboard"
 
-    def __init__(self, input_shape=None, losses=None, loss_weights=None, optimizer=None, callbacks=None, metrics=None, epochs=None, steps_per_epoch=None, initial_epoch=0):
+    def __init__(self, session_name, input_shape=None, losses=None, loss_weights=None, optimizer=None, callbacks=None, metrics=None, epochs=None, steps_per_epoch=None, initial_epoch=0):
         """
         Args:
+            session_name (str): name for the session
             input_shape (tuple): volume input shape
             losses (list): list of losses used for each output of the model
             reg_params (list): list of weights for the latter losses
@@ -36,6 +37,8 @@ class ConfigFile:
         if callbacks:
             for callback in callbacks:
                 assert issubclass(callback.__class__, keras.callbacks.Callback), f"Callback {callback} is not valid"
+        self.session_name = session_name
+        self.session_dir = os.path.join(ConfigFile.bin_dir, session_name)
         self.input_shape = input_shape
         self.losses = losses
         self.loss_weights = loss_weights
@@ -46,16 +49,35 @@ class ConfigFile:
         self.steps_per_epoch = steps_per_epoch
         self.initial_epoch = initial_epoch
 
-    def serialize(self, path):
+    def serialize(self, path=None):
         """Dumps object dictionnary as serialized pickle file
         Args:
             path (str): dumping path
         """
-        with open(path, "wb") as f:
-            pickle.dump(self.__dict__, f)
+        if not path:
+            path = os.path.join(self.session_dir, ConfigFile.pickle_filename)
+        attributes = self.__dict__.copy()
+        del attributes["optimizer"]
+        attributes.update({"optimizer_class": self.optimizer.__class__, "optimizer_config": self.optimizer.get_config()})
+        io.save_pickle(path, attributes)
+
+    def load(self, path):
+        kwargs = io.load_pickle(path)
+        kwargs["optimizer"] = kwargs["optimizer_class"](**kwargs["optimizer_config"])
+        del kwargs["session_dir"], kwargs["optimizer_class"], kwargs["optimizer_config"]
+        self.__init__(**kwargs)
+
+    def setup_session(self, overwrite=False, timestamp=False):
+        session_name = self.session_name
+        if timestamp:
+            session_name = session_name + "_" + time.strftime("%Y%m%d-%H%M%S")
+        io.mkdir(session_name, ConfigFile.bin_dir, overwrite)
+        session_dir = os.path.join(ConfigFile.bin_dir, session_name)
+        io.mkdir(ConfigFile.checkpoints_dirname, session_dir)
+        io.mkdir(ConfigFile.tensorboard_dirname, session_dir)
 
     @staticmethod
-    def setup_session(session_name, overwrite=False, timestamp=False):
+    def setup_session_(session_name, overwrite=False, timestamp=False):
         if timestamp:
             session_name = session_name + "_" + time.strftime("%Y%m%d-%H%M%S")
         io.mkdir(session_name, ConfigFile.bin_dir, overwrite)
