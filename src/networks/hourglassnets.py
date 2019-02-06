@@ -3,7 +3,7 @@ keras utilities defining some default hourglass network achitectures
 """
 from abc import ABCMeta, abstractmethod
 from keras.models import Model
-import keras.layers as kl
+import keras.layers as KL
 from keras.layers import Input, concatenate
 
 
@@ -44,7 +44,7 @@ class Unet(HourglassNet):
 
     def build(self):
         # Set proper upsampling layer for decoding
-        upsample_layer = getattr(kl, 'UpSampling%dD' % self.ndims_)
+        upsample_layer = getattr(KL, 'UpSampling%dD' % self.ndims_)
 
         # Inputs
         src = Input(shape=self.input_shape_ + (1,))
@@ -103,9 +103,6 @@ class BiDecoderNet(HourglassNet):
         self.conv_block_ = conv_block
 
     def build(self):
-        # Set proper GAP layer for decoding
-        globalAveragePooling_layer = getattr(kl, 'GlobalAveragePooling%dD' % self.ndims_)
-
         # Inputs
         src = Input(shape=self.input_shape_ + (1,))
         tgt = Input(shape=self.input_shape_ + (1,))
@@ -117,19 +114,17 @@ class BiDecoderNet(HourglassNet):
             self.conv_block_.update_conv_kwargs(params)
             x_enc.append(self.conv_block_.build(x_enc[-1]))
 
-        x = concatenate(x_enc)
+        # Multiresolution feature merging
+        multi_x = concatenate(x_enc)
 
         # Deformable Decoding
-        x_def = self.squeeze_block_.build(x)
+        x_def = self.squeeze_block_.build(multi_x)
         self.conv_block_.update_conv_kwargs({"dilation_rate": (1, 1, 1)})
         for i, params in enumerate(self.dec_params_):
             self.conv_block_.update_conv_kwargs(params)
             x_def = self.conv_block_.build(x_def)
 
-        # Linear Decoding
-        x_lin = globalAveragePooling_layer()(x)
-
-        return Model(inputs=[src, tgt], outputs=[x_def, x_lin])
+        return Model(inputs=[src, tgt], outputs=[x_def, multi_x])
 
 
 

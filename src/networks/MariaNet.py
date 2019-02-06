@@ -31,13 +31,14 @@ class MariaNet(BiDecoderNet):
         self.lin_flow_nf_ = lin_flow_nf
 
     def build(self):
-        # Get proper convolutional layer
+        # Get proper convolutional layer and GAP layer for decoding
         conv_layer = getattr(KL, 'Conv%dD' % self.ndims_)
+        globalAveragePooling_layer = getattr(KL, 'GlobalAveragePooling%dD' % self.ndims_)
 
         # Build core architecture
         bi_decoding_net = super(MariaNet, self).build()
         [src, tgt] = bi_decoding_net.inputs
-        [x_def, x_lin] = bi_decoding_net.output
+        [x_def, multi_x] = bi_decoding_net.output
 
         # Transform the results into a flow field
         deformable_grad_flow = conv_layer(self.def_flow_nf_,
@@ -53,7 +54,8 @@ class MariaNet(BiDecoderNet):
                                  activation='linear',
                                  name='linear_flow',
                                  kernel_initializer=RandomNormal(mean=0.0, stddev=1e-5),
-                                 kernel_regularizer=l1(1e-5))(x_lin)
+                                 kernel_regularizer=l1(1e-5))(multi_x)
+        linear_flow = globalAveragePooling_layer()(linear_flow)
 
         # Wrap the source with the flow
         [deformed, displacements] = diffeomorphicTransformer3D()([src, deformable_grad_flow, linear_flow])

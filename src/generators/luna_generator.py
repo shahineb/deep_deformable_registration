@@ -14,14 +14,14 @@ loader = LungsLoader()
 def scan_generator(scans_ids, width, height, depth, loop, shuffle):
     scan_gen = loader.preprocess_scans(scans_ids, width, height, depth, loop, shuffle)
     zeros = np.zeros((1,) + (width, height, depth) + (3,))
+    identity = np.array([[1., 0., 0., 0., 0., 1., 0., 0., 0., 0., 1., 0.]])
     try:
         while True:
                 src_scan = next(scan_gen)[0]
                 tgt_scan = next(scan_gen)[0]
                 src_scan = src_scan[np.newaxis, :, :, :, np.newaxis]
                 tgt_scan = tgt_scan[np.newaxis, :, :, :, np.newaxis]
-                zeros = np.zeros((1,) + (width, height, depth) + (3,))
-                yield ([src_scan, tgt_scan], [tgt_scan, zeros, zeros])
+                yield ([src_scan, tgt_scan], [tgt_scan, zeros, identity])
     except StopIteration:
         raise StopIteration(f"Completed iteration over the f{len(scans_ids)} scans")
 
@@ -32,6 +32,7 @@ def scan_and_seg_generator(scans_ids, width, height, depth, loop, shuffle):
     scan_gen = loader.preprocess_scans(scans_ids, width, height, depth, loop, shuffle=False)
     seg_gen = loader.preprocess_segmentations(scans_ids, width, height, depth, loop, shuffle=False)
     zeros = np.zeros((1,) + (width, height, depth) + (3,))
+    identity = np.array([[1., 0., 0., 0., 0., 1., 0., 0., 0., 0., 1., 0.]])
 
     try:
         while True:
@@ -45,6 +46,6 @@ def scan_and_seg_generator(scans_ids, width, height, depth, loop, shuffle):
             src_seg = src_seg[np.newaxis, :, :, :, np.newaxis]
             tgt_seg = tgt_seg[np.newaxis, :, :, :, np.newaxis]
 
-            yield ([src_scan, tgt_scan, src_seg], [tgt_scan, tgt_seg, zeros, zeros])
+            yield ([src_scan, tgt_scan, src_seg], [tgt_scan, tgt_seg, zeros, identity])
     except StopIteration:
         raise StopIteration(f"Completed iteration over the f{len(scans_ids)} scans")
