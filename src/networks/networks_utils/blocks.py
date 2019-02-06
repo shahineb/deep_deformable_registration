@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-import keras.layers as kl
+import keras.layers as KL
 from keras import backend as k
 
 
@@ -63,14 +63,14 @@ class ConvBlock(Block):
     def build(self, inp):
         ndims = Block.get_input_dimension(inp)
 
-        conv = getattr(kl, 'Conv%dD' % ndims)
+        conv = getattr(KL, 'Conv%dD' % ndims)
         x = conv(**self.conv_kwargs_)(inp)
 
         if self.activation_:
-            activation = getattr(kl, self.activation_)
+            activation = getattr(KL, self.activation_)
             x = activation(**self.activation_kwargs_)(x)
         if self.normalize_:
-            x = kl.BatchNormalization(**self.norm_kwargs_)(x)
+            x = KL.BatchNormalization(**self.norm_kwargs_)(x)
         return x
 
 
@@ -87,18 +87,18 @@ class SqueezeExciteBlock(Block):
         channel_axis = 1 if k.image_data_format() == "channels_first" else -1
         filters = inp._keras_shape[channel_axis]
         se_shape = tuple([1] * ndims) + (filters,)
-        global_average_pooling = getattr(kl, 'GlobalAveragePooling%dD' % ndims)
+        global_average_pooling = getattr(KL, 'GlobalAveragePooling%dD' % ndims)
 
         se = global_average_pooling()(inp)
-        se = kl.Reshape(se_shape)(se)
-        se = kl.Dense(
+        se = KL.Reshape(se_shape)(se)
+        se = KL.Dense(
             filters // self.ratio_, activation='relu', kernel_initializer='he_normal', use_bias=False
             )(se)
-        se = kl.Dense(filters, activation='sigmoid', kernel_initializer='he_normal', use_bias=False)(se)
+        se = KL.Dense(filters, activation='sigmoid', kernel_initializer='he_normal', use_bias=False)(se)
 
         if k.image_data_format() == 'channels_first':
             permutation = (ndims,) + tuple(range(1, ndims))
-            se = kl.Permute(permutation)(se)
+            se = KL.Permute(permutation)(se)
 
-        x = kl.multiply([inp, se])
+        x = KL.multiply([inp, se])
         return x

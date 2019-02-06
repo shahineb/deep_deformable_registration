@@ -94,15 +94,13 @@ class BiDecoderNet(HourglassNet):
                  input_shape,
                  enc_params,
                  dec_params,
-                 squeeze_block,
-                 conv_block_enc,
-                 conv_block_dec_deformable):
+                 conv_block,
+                 squeeze_block):
         super(BiDecoderNet, self).__init__(input_shape)
         self.enc_params_ = enc_params
         self.dec_params_ = dec_params
         self.squeeze_block_ = squeeze_block
-        self.conv_block_enc_ = conv_block_enc
-        self.conv_block_dec_deformable_ = conv_block_dec_deformable
+        self.conv_block_ = conv_block
 
     def build(self):
         # Set proper GAP layer for decoding
@@ -116,16 +114,17 @@ class BiDecoderNet(HourglassNet):
         # Encoding
         x_enc = [x_in]
         for i, params in enumerate(self.enc_params_):
-            self.conv_block_enc_.update(params)
-            x_enc.append(self.conv_block_enc_.build(x_enc[-1]))
+            self.conv_block_.update_conv_kwargs(params)
+            x_enc.append(self.conv_block_.build(x_enc[-1]))
 
         x = concatenate(x_enc)
 
         # Deformable Decoding
         x_def = self.squeeze_block_.build(x)
+        self.conv_block_.update_conv_kwargs({"dilation_rate": (1, 1, 1)})
         for i, params in enumerate(self.dec_params_):
-            self.conv_block_dec_deformable_.update(params)
-            x_def = self.conv_block_enc_.build(x_def)
+            self.conv_block_.update_conv_kwargs(params)
+            x_def = self.conv_block_.build(x_def)
 
         # Linear Decoding
         x_lin = globalAveragePooling_layer()(x)

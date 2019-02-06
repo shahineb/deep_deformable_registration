@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-from keras import metrics
 from scipy import signal
 from scipy.spatial import distance
 from sklearn.metrics import f1_score, mean_squared_error
@@ -10,7 +9,7 @@ def pipeline(model, x, y, segmentation=True):
     # metrics for segmentation (x = one array )
     # metrics for registration (x = two arrays )
     # model = model to be tested with loaded weights
-    # 
+    #
     results = pd.DataFrame()
     if not segmentation:
         y1, y2 = model.predict(x)
@@ -23,17 +22,26 @@ def pipeline(model, x, y, segmentation=True):
         results['Hausdorff'] = [distance.directed_hausdorff(y, y_pred)]
     return results
 
-def pipeline_test_set(model, gen_val, model_name, segmentation = True):
-    #gen_val is a generator 
-    #For registration : [[src,tgt],[tgt,zeros]]
-    #For segmentation : [src,tgt]
+
+def pipeline_test_set(model, gen_val, model_name, segmentation=True):
+    # gen_val is a generator
+    # For registration : [[src,tgt],[tgt,zeros]]
+    # For segmentation : [src,tgt]
     results = pd.DataFrame()
+<<<<<<< HEAD:notebooks/chaos/Testing_pipeline.py
     for Val_i in gen_val:
         if not segmentation :
             results = pd.concat([results, pipeline(model, Val_i[0], Val_i[0][1], segmentation)])
         else :
             results = pd.concat([results, pipeline(model, Val_i[0], Val_i[1], segmentation)])
+=======
+    for i in range(len(list(gen_val()))):
+        if not segmentation:
+            val_i = next(gen_val)
+            results = pd.concat([results, pipeline(model, val_i[0], val_i[0][1], segmentation)])
+        else:
+            val_i = next(gen_val)
+            results = pd.concat([results, pipeline(model, val_i[0], val_i[1], segmentation)])
+>>>>>>> refs/remotes/origin/master:src/evaluation/Testing_pipeline.py
     results.mean().to_csv(model_name+'.csv')
     return None
-        
-                              

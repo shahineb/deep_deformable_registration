@@ -7,21 +7,23 @@ import json
 import pickle
 
 
-def mkdir(dir_name, location='', overwrite=False):
+def mkdir(dirname, location='.', overwrite=False, timestamp=False):
     """
     Creates directory at given location with name dir_name
     If no location is precised, created in working directory
     Default setting don't allow overwriting if directory already exists
     """
-    path_to_dir = os.path.join(location, dir_name)
-    if os.path.exists(path_to_dir):
+    if timestamp:
+        dirname = dirname + "_" + time.strftime("%Y%m%d-%H%M%S")
+    full_path = os.path.join(location, dirname)
+    if os.path.exists(full_path):
         if overwrite:
-            shutil.rmtree(path_to_dir)
-            os.mkdir(path_to_dir)
+            shutil.rmtree(full_path)
+            os.mkdir(full_path)
         else:
-            warnings.warn(f"directory {dir_name} already exists")
+            warnings.warn(f"directory {full_path} already exists")
     else:
-        os.mkdir(path_to_dir)
+        os.mkdir(full_path)
 
 
 def dict_to_list(object, key="", paramsList=[]):
