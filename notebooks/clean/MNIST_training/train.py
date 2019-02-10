@@ -10,7 +10,6 @@ from keras.regularizers import l2
 # Local imports
 base_dir = os.path.dirname(os.path.realpath(__file__))
 
-# TODO : try load folders as libraries with __init__.py > must be tried on server
 utils_path = os.path.join(base_dir, "../../../utils")
 generators_path = os.path.join(base_dir, "../../../src/generators")
 networks_utils_path = os.path.join(base_dir, "../../../src/networks/networks_utils")

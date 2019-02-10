@@ -75,6 +75,7 @@ class ConfigFile:
         session_dir = os.path.join(ConfigFile.bin_dir, session_name)
         io.mkdir(ConfigFile.checkpoints_dirname, session_dir)
         io.mkdir(ConfigFile.tensorboard_dirname, session_dir)
+        ConfigFile._write_gitignore(session_dir)
 
     @staticmethod
     def setup_session_(session_name, overwrite=False, timestamp=False):
@@ -84,6 +85,12 @@ class ConfigFile:
         session_dir = os.path.join(ConfigFile.bin_dir, session_name)
         io.mkdir(ConfigFile.checkpoints_dirname, session_dir)
         io.mkdir(ConfigFile.tensorboard_dirname, session_dir)
+        ConfigFile._write_gitignore(session_dir)
+
+    @staticmethod
+    def _write_gitignore(dir_path):
+        with open(os.path.join(dir_path, ".gitignore"), "w") as f:
+            f.write("*\n!.gitignore")
 
     def set_input_shape(self, input_shape):
         self.input_shape = input_shape

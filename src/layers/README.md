@@ -32,5 +32,3 @@ python example-3d.py
 ## TODO:
 
 Add a better 3D dataset with visualization results
-
-

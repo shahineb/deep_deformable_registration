@@ -177,7 +177,6 @@ class BiDecoderNet(HourglassNet):
 #     dilatation = [1, 1, 2, 3, 5]
 #     for (nf, D) in zip(n_filters, dilatation):
 #         x_enc += [encoding_block(x_enc[-1], nd, D)]
-#     # TODO : multi-resolution merging of all features -> ask Maria
 #
 #     # Decoding
 #     pass
