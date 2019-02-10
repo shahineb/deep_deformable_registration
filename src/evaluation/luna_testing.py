@@ -75,13 +75,10 @@ class LunaTester:
             tgt_scan (np.ndarray)
         """
         # TODO : extend to segmentation
-        pred_tgt = self.model.predict([src_scan, tgt_scan])
+        [pred_tgt, _, __] = self.model_.predict([src_scan, tgt_scan])
         scores = dict.fromkeys(self.metric_dict_.keys(), None)
         for metric_name, metric in self.metric_dict_.items():
-            try:
-                scores.update({metric_name: list(LunaTester._score_sample(tgt_scan, pred_tgt, metric))})
-            except Exception:
-                continue
+            scores.update({metric_name: [LunaTester._score_sample(tgt_scan, pred_tgt, metric)]})
         return scores
 
     def evaluate(self, test_ids):
@@ -116,9 +113,10 @@ class LunaTester:
                 sample_score = self.score_sample(src_scan, tgt_scan)
                 scores.update({k: scores[k] + sample_score[k] for k in scores.keys()})
 
-                if i % len(test_ids) // 10 == 0:
+                if i % (len(test_ids) // 100 + 1) == 0:
                     self.logger.verbose(f"Evaluated {i}/{len(test_ids)} scans\n")
                     pd.DataFrame.from_dict(scores).to_csv(os.path.join(self.config.session_dir, LunaTester.test_scores_filename))
+                i += 1
         except StopIteration:
             self.logger.verbose(f"Evaluation completed !\n")
             scores_df = pd.DataFrame.from_dict(scores)
