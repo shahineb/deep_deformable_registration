@@ -9,6 +9,16 @@ import utils.IOHandler as io
 
 
 class ConfigFile:
+    """Utility class gathering all needed information about a training session to
+    ensure its reproducibility
+
+    Attributes:
+        bin_dir (str): path to bin directory
+        pickle_filename (str): name format for serialized file
+        checkpoints_dirname (str): checkpoints directory name
+        checkpoints_format (str): format for checkpoints file names
+        tensorboard_dirname (str): tensorboard logs directory name
+    """
 
     bin_dir = os.path.join(base_dir, "bin")
     pickle_filename = "config.pickle"
@@ -62,12 +72,23 @@ class ConfigFile:
         io.save_pickle(path, attributes)
 
     def load(self, path):
+        """Loads serialized file to initalize ConfigFile instance
+
+        Args:
+            path (str): path to file
+        """
         kwargs = io.load_pickle(path)
         kwargs["optimizer"] = kwargs["optimizer_class"](**kwargs["optimizer_config"])
         del kwargs["session_dir"], kwargs["optimizer_class"], kwargs["optimizer_config"]
         self.__init__(**kwargs)
 
     def setup_session(self, overwrite=False, timestamp=False):
+        """Sets up training session directory
+
+        Args:
+            overwrite (bool): if True, overwrites existing directory (default: False)
+            timestamp (bool): if True, adds timestamp to directory name (default: False)
+        """
         session_name = self.session_name
         if timestamp:
             session_name = session_name + "_" + time.strftime("%Y%m%d-%H%M%S")
@@ -79,6 +100,13 @@ class ConfigFile:
 
     @staticmethod
     def setup_session_(session_name, overwrite=False, timestamp=False):
+        """Sets up training session directory
+
+        Args:
+            session_name (str): name of session
+            overwrite (bool): if True, overwrites existing directory (default: False)
+            timestamp (bool): if True, adds timestamp to directory name (default: False)
+        """
         if timestamp:
             session_name = session_name + "_" + time.strftime("%Y%m%d-%H%M%S")
         io.mkdir(session_name, ConfigFile.bin_dir, overwrite)
@@ -89,6 +117,12 @@ class ConfigFile:
 
     @staticmethod
     def _write_gitignore(dir_path):
+        """Generates .gitignore file in specified directory to ignore all but
+        gitignore file
+
+        Args:
+            dir_path (str): path to directory
+        """
         with open(os.path.join(dir_path, ".gitignore"), "w") as f:
             f.write("*\n!.gitignore")
 

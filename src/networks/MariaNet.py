@@ -10,9 +10,22 @@ base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../..")
 sys.path.append(base_dir)
 from src.layers.diffeomorphicTransformer import diffeomorphicTransformer3D
 from src.networks.hourglassnets import BiDecoderNet
+import utils.IOHandler as io
 
 
 class MariaNet(BiDecoderNet):
+    """Implementation of registration network proposed in
+    Christodoulis et al. 2018 (https://arxiv.org/abs/1809.06226)
+
+    Args:
+        input_shape (tuple): (width, height, depth)
+        enc_params (list): list of parameters for sequence of encoding conv blocks
+        dec_params (list): list of parameters for sequence of decoding conv blocks
+        conv_block (block.ConvBlock): ConvBlock instance as defined in network_utils.blocks
+        squeeze_block (block.SqueezeExciteBlock): SqueezeExciteBlock instance as defined in network_utils.blocks
+        def_flow_nf (int): Nb of filters for deformable flow convolutional block
+        lin_flow_nf (int): Nb of filters for linear flow convolutional block
+    """
 
     def __init__(self,
                  input_shape,
@@ -70,3 +83,12 @@ class MariaNet(BiDecoderNet):
         """
         with open(path, "wb") as f:
             pickle.dump(self.__dict__, f)
+
+    def load(self, path):
+        """Loads builder attributes
+
+        Args:
+            path (str): file path
+        """
+        kwargs = io.load_pickle(path)
+        self.__init__(*kwargs.values())

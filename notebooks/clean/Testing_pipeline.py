@@ -9,7 +9,7 @@ def pipeline(model, x, y, segmentation=True):
     # metrics for segmentation (x = one array )
     # metrics for registration (x = two arrays )
     # model = model to be tested with loaded weights
-    # 
+    #
     results = pd.DataFrame()
     if not segmentation:
         y1, y2 = model.predict(x)
@@ -18,7 +18,7 @@ def pipeline(model, x, y, segmentation=True):
         results['Cross_cor'] = [np.linalg.norm(signal.correlate(y, y1))]
     else:
         y_pred = model.predict(x)
-        results['Dice'] = [f1_score(y.reshape(1, -1), y_pred.reshape(1, -1))]
+            results['Dice'] = [f1_score(y.reshape(1, -1), y_pred.reshape(1, -1))]
         results['Hausdorff'] = [distance.directed_hausdorff(y, y_pred)]
     return results
 
@@ -35,4 +35,3 @@ def pipeline_test_set(model, gen_val, model_name, segmentation=True):
             results = pd.concat([results, pipeline(model, val_i[0], val_i[1], segmentation)])
     results.mean().to_csv(model_name+'.csv')
     return None
-

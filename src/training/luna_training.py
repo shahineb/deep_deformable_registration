@@ -10,7 +10,6 @@ sys.path.append(base_dir)
 import utils.IOHandler as io
 from src.training.config_file import ConfigFile
 from src.generators import luna_generator as gen
-from src.evaluation.Testing_pipeline import pipeline_test_set
 
 
 class LunaTrainer:
@@ -45,7 +44,7 @@ class LunaTrainer:
         self.logger.setLevel(verbose)
 
     def get_config(self):
-        """Prints specificities of loaded config file
+        """Returns specificities of loaded config file
         """
         return self.config.__dict__
 
@@ -93,13 +92,3 @@ class LunaTrainer:
                                                       validation_steps=validation_steps)
 
         io.save_json(os.path.join(self.main_dir_, "training_history.json"), training_loss.history)
-
-    def test(self, val_gen=None, model_name='model'):
-        """
-        :param val_gen: generator for the validation set
-        :param model_name: name of the model (filename)
-        """
-        if val_gen is not None:
-            self.val_gen = val_gen
-        pipeline_test_set(self.model_, self.val_gen, model_name, self.segmentation)
-        return None
