@@ -1,4 +1,5 @@
 import tensorflow as tf
+import keras.losses as klosses
 
 
 def cross_correlation(vol1, vol2):
@@ -24,3 +25,7 @@ def dice_score(seg1, seg2):
     numerator = 2 * tf.reduce_sum(tf.cast(tf.equal(seg1, seg2), tf.int32))
     denominator = tf.size(seg1) + tf.size(seg2)
     return numerator / denominator
+
+
+def registration_loss(vol1, vol2):
+    return klosses.mean_squared_error(vol1, vol2) - 1. * cross_correlation(vol1, vol2)

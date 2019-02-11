@@ -40,8 +40,8 @@ class MariaNet(BiDecoderNet):
                                        dec_params,
                                        conv_block,
                                        squeeze_block)
-        self.def_flow_nf_ = def_flow_nf
-        self.lin_flow_nf_ = lin_flow_nf
+        self.def_flow_nf = def_flow_nf
+        self.lin_flow_nf = lin_flow_nf
 
     def build(self):
         # Get proper convolutional layer and GAP layer for decoding
@@ -54,14 +54,14 @@ class MariaNet(BiDecoderNet):
         [x_def, multi_x] = bi_decoding_net.output
 
         # Transform the results into a flow field
-        deformable_grad_flow = conv_layer(self.def_flow_nf_,
+        deformable_grad_flow = conv_layer(self.def_flow_nf,
                                           kernel_size=3,
                                           padding='same',
                                           activation='sigmoid',
                                           name='deformable_gradient_flow',
                                           kernel_initializer=RandomNormal(mean=0.0, stddev=1e-5),
                                           kernel_regularizer=l1(1e-5))(x_def)
-        linear_flow = conv_layer(self.lin_flow_nf_,
+        linear_flow = conv_layer(self.lin_flow_nf,
                                  kernel_size=3,
                                  padding='same',
                                  activation='linear',
@@ -91,4 +91,5 @@ class MariaNet(BiDecoderNet):
             path (str): file path
         """
         kwargs = io.load_pickle(path)
-        self.__init__(*kwargs.values())
+        del kwargs['ndims_']
+        self.__init__(**kwargs)
