@@ -25,6 +25,8 @@ class ConfigFile:
     checkpoints_dirname = "checkpoints"
     checkpoints_format = "chkpt_{epoch:02d}.h5"
     tensorboard_dirname = "tensorboard"
+    builder_filename = "builder.pickle"
+
 
     def __init__(self, session_name, input_shape=None, losses=None, loss_weights=None, optimizer=None, callbacks=None, metrics=None, epochs=None, steps_per_epoch=None, initial_epoch=0):
         """
