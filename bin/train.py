@@ -44,7 +44,8 @@ if __name__ == "__main__":
     # Setup trainer
     trainer = LunaTrainer(model=model,
                           device=gpu,
-                          config_path=os.path.join(session_dir, ConfigFile.pickle_filename))
+                          config_path=os.path.join(session_dir, ConfigFile.pickle_filename),
+                          tensorboard=True)
 
     # Load training and validation sets
     train_ids = pd.read_csv(os.path.join(session_dir, LunaTrainer.train_ids_filename)).values.squeeze()

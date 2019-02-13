@@ -27,7 +27,6 @@ class ConfigFile:
     tensorboard_dirname = "tensorboard"
     builder_filename = "builder.pickle"
 
-
     def __init__(self, session_name, input_shape=None, losses=None, loss_weights=None, optimizer=None, callbacks=None, metrics=None, epochs=None, steps_per_epoch=None, initial_epoch=0):
         """
         Args:
@@ -137,6 +136,10 @@ class ConfigFile:
     def set_loss_weights(self, loss_weights):
         self.loss_weights = loss_weights
 
+    def add_loss(self, loss, loss_weight=1.):
+        self.losses.append(loss)
+        self.loss_weights.append(loss_weight)
+
     def set_optimizer(self, optimizer):
         assert issubclass(optimizer.__class__, keras.optimizers.Optimizer), "Optimizer specified is not valid"
         self.optimizer = optimizer
@@ -145,6 +148,10 @@ class ConfigFile:
         for callback in callbacks:
             assert issubclass(callback.__class__, keras.callbacks.Callback), f"Callback {callback} is not valid"
         self.callbacks = callbacks
+
+    def add_callback(self, callback):
+        assert issubclass(callback.__class__, keras.callbacks.Callback), f"Callback {callback} is not valid"
+        self.callbacks.append(callback)
 
     def set_metrics(self, metrics):
         self.metrics = metrics

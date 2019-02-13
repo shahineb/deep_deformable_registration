@@ -4,6 +4,7 @@ import logging
 import verboselogs
 import tensorflow as tf
 import pandas as pd
+from keras.callbacks import TensorBoard
 
 base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../..")
 sys.path.append(base_dir)
@@ -22,18 +23,18 @@ class LunaTrainer:
         weights_path (str): path to model weights (optional)
         use_segmentation (boolean): if true trains with segmentation data
         verbose (int): {0, 1}
+        tensorboard (boolean): if true adds tensorboard callback
     """
 
     train_ids_filename = "train_ids.csv"
     val_ids_filename = "val_ids.csv"
 
-    def __init__(self, model, device, config_path, weights_path=None, use_segmentation=False, verbose=1):
+    def __init__(self, model, device, config_path, weights_path=None, use_segmentation=False, verbose=1, tensorboard=False):
         self.model_ = model
         self.device_ = device
         self.main_dir_ = os.path.dirname(config_path)
         self.config = ConfigFile(session_name="")
         self.config.load(config_path)
-        self.config.load
         self.weights_path_ = weights_path
         if self.weights_path_:
             self.model_.load_weights(self.weights_path_)
@@ -42,6 +43,13 @@ class LunaTrainer:
         self.logger = verboselogs.VerboseLogger('verbose-demo')
         self.logger.addHandler(logging.StreamHandler())
         self.logger.setLevel(verbose)
+        self.tensorboard_ = tensorboard
+        if self.tensorboard_:
+            tb_callback = TensorBoard(log_dir=os.path.join(self.config.session_dir, ConfigFile.tensorboard_dirname),
+                                      histogram_freq=0,
+                                      write_graph=True,
+                                      write_images=True)
+            self.config.add_callback(tb_callback)
 
     def get_config(self):
         """Returns specificities of loaded config file
@@ -74,6 +82,7 @@ class LunaTrainer:
         self.logger.verbose(f"\t - Optimizer : {self.config.optimizer.__dict__}\n")
         self.logger.verbose(f"\t - Losses : {self.config.losses}\n")
         self.logger.verbose(f"\t - Losses weights : {self.config.loss_weights}\n")
+        self.logger.verbose(f"\t - Callbacks : {self.config.callbacks}\n")
         self.model_.compile(optimizer=self.config.optimizer,
                             loss=self.config.losses,
                             loss_weights=self.config.loss_weights,
