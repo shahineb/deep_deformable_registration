@@ -1,0 +1,7 @@
+- `networks`: contains various builders for the registration architectures used. Based on keras framework.
+- `layers`: custom keras layers used to build the model
+- `generators`: scan iterators used for training
+- `training`: training configuration and running utilities
+- `evaluation`: testing utilities
+- `losses.py`: custom keras-compatible losses for registration and segmentation
+- `metrics.py`: custom numpy-based metrics for registration and segmentation evaluation
