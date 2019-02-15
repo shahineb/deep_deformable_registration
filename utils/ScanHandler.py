@@ -31,7 +31,7 @@ class ScanHandler:
             )
         interact(self.show, z=int_slider, ct_scan=fixed(ct_scan))
 
-    def display_n_slices(self, ct_scan, n):
+    def display_n_slices(self, ct_scan, n, axes=None):
         prev_figsize = self._plt.figure().get_size_inches()
         cols = 4
         rows = n // 4 + 1

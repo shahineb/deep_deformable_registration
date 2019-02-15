@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
     # Load training and validation sets
     train_ids = pd.read_csv(os.path.join(session_dir, LunaTrainer.train_ids_filename)).values.squeeze()
-    val_ids = pd.read_csv(os.path.join(session_dir, LunaTrainer.train_ids_filename)).values.squeeze()
+    val_ids = pd.read_csv(os.path.join(session_dir, LunaTrainer.val_ids_filename)).values.squeeze()
 
     # Train
     trainer.fit(train_ids, val_ids)
