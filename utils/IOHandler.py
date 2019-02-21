@@ -91,7 +91,7 @@ def save_json(path, jsonFile):
     """
     Dumps dictionnary as json file
     """
-    with open(path, "wb") as f:
+    with open(path, "w") as f:
         f.write(json.dumps(jsonFile))
 
 
@@ -99,7 +99,7 @@ def load_json(path):
     """
     Loads json format file into python dictionnary
     """
-    with open(path, "rb") as f:
+    with open(path, "r") as f:
         jsonFile = json.load(f)
     return jsonFile
 
