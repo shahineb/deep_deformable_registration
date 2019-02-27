@@ -3,6 +3,7 @@ import warnings
 import numpy as np
 import random
 import SimpleITK as sitk
+from keras.preprocessing import image as image_prep
 
 # Change cur dir to project root
 base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
@@ -166,9 +167,9 @@ class LungsLoader:
 
     @staticmethod
     def clip_scan(ct_scan):
-        x = ct_scan.shape[1]
-        clipping_min = np.min(ct_scan[:, (x // 2) - 5:(x // 2) + 5, 0:10])
-        clipping_min = min(clipping_min, np.min(ct_scan[:, (x // 2) - 5:(x // 2) + 5, -10:]))
+        _, x, _ = ct_scan.shape
+        clipping_min = np.min(ct_scan[:, x // 2, 2:5])
+        clipping_min = min(clipping_min, np.min(ct_scan[:, x // 2, -5:-2]))
         return np.clip(ct_scan, clipping_min, None)
 
     def preprocess_scans(self, scan_ids, width, height, depth, clipping=True, loop=False,
@@ -200,6 +201,41 @@ class LungsLoader:
                     )
             if not loop:
                 break
+
+    def toy_preprocess_scans(self, scan_ids, width, height, depth, clipping=True, loop=False,
+                             seed=42, shuffle=False):
+        """
+        Mimic the preprocess_scans function but yields slightly transformed target images.
+        The source is yielded first and then the target (pair index are src and impair index are
+        targets if it was a list).
+        :param scan_ids: See preprocess scans.
+        :param width: See preprocess scans.
+        :param height: See preprocess scans.
+        :param depth: See preprocess scans.
+        :param clipping: See preprocess scans.
+        :param loop: See preprocess scans.
+        :param shuffle: See preprocess scans.
+        :param seed: Seed used to initialize numpy random and make the dataset reproducible.
+        Defaults to 42.
+        :return: A generator of ct_scan, origin, spacing tuples. Alternates between a source scan
+        and a target created with small transformations.
+        """
+        # Initialize image transformer
+        kwds_generator = {'rotation_range': 5,
+                          'width_shift_range': 0.03,
+                          'height_shift_range': 0.03,
+                          'zoom_range': 0.03,
+                          'data_format': "channels_first",  # z axis is first
+                          }
+        image_gen = image_prep.ImageDataGenerator(**kwds_generator)
+
+        scan_gen = self.preprocess_scans(scan_ids, width, height, depth, clipping, loop, shuffle)
+        for ct_scan, origin, spacing in scan_gen:
+            yield ct_scan, origin, spacing
+            transformed_scan = image_gen.random_transform(ct_scan, seed=seed)
+            if seed is not None:
+                seed += 1
+            yield transformed_scan, origin, spacing
 
     def preprocess_segmentations(self, scan_ids, width, height, depth, ohe=None, loop=False, shuffle=False):
         """
