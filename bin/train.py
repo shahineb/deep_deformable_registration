@@ -11,12 +11,13 @@ base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
 sys.path.append(base_dir)
 
 from src.networks.MariaNet import MariaNet
+from src.networks.DiffeomorphicUnet import DiffeomorphicUnet
 from src.training.config_file import ConfigFile
 from src.training.luna_training import LunaTrainer
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--session_name", required=True, type=Path,
+parser.add_argument("--session", required=True, type=Path,
                     help="name of training session to run")
 parser.add_argument("--gpu_id", required=False, type=int,
                     help="GPU to set session on")
