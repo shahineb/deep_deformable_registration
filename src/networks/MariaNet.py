@@ -1,6 +1,5 @@
 import os
 import sys
-import pickle
 from keras.models import Model
 from keras.regularizers import l1
 import keras.layers as KL
@@ -75,14 +74,6 @@ class MariaNet(BiDecoderNet):
 
         #  prepare model
         return Model(inputs=[src, tgt], outputs=[deformed, deformable_grad_flow, linear_flow])
-
-    def serialize(self, path):
-        """Dumps object dictionnary as serialized pickle file
-        Args:
-            path (str): dumping path
-        """
-        with open(path, "wb") as f:
-            pickle.dump(self.__dict__, f)
 
     def load(self, path):
         """Loads builder attributes

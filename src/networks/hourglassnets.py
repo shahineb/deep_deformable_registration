@@ -5,6 +5,7 @@ from abc import ABCMeta, abstractmethod
 from keras.models import Model
 import keras.layers as KL
 from keras.layers import Input, concatenate
+import pickle
 
 
 class HourglassNet(object):
@@ -23,7 +24,28 @@ class HourglassNet(object):
 
     @abstractmethod
     def build(self):
+        """Dumps object dictionnary as serialized pickle file
+        Args:
+            path (str): dumping path
+        """
         pass
+
+    @abstractmethod
+    def load(self, path):
+        """Loads builder attributes
+
+        Args:
+            path (str): file path
+        """
+        pass
+
+    def serialize(self, path):
+        """Dumps object dictionnary as serialized pickle file
+        Args:
+            path (str): dumping path
+        """
+        with open(path, "wb") as f:
+            pickle.dump(self.__dict__, f)
 
 
 class Unet(HourglassNet):
@@ -36,11 +58,23 @@ class Unet(HourglassNet):
         conv_block (blocks.ConvBlock): Convolutional block
     """
 
-    def __init__(self, input_shape, enc_nf, dec_nf, conv_block):
+    def __init__(self,
+                 input_shape,
+                 enc_nf,
+                 dec_nf,
+                 conv_block):
         super(Unet, self).__init__(input_shape)
         self.enc_nf = enc_nf
         self.dec_nf = dec_nf
         self.conv_block = conv_block
+
+    def load(self, path):
+        """Loads builder attributes
+
+        Args:
+            path (str): file path
+        """
+        pass
 
     def build(self):
         # Set proper upsampling layer for decoding
@@ -101,6 +135,14 @@ class BiDecoderNet(HourglassNet):
         self.dec_params = dec_params
         self.squeeze_block = squeeze_block
         self.conv_block = conv_block
+
+    def load(self, path):
+        """Loads builder attributes
+
+        Args:
+            path (str): file path
+        """
+        pass
 
     def build(self):
         # Inputs
