@@ -17,10 +17,11 @@ class HourglassNet(object):
     """
     __metaclass__ = ABCMeta
 
-    def __init__(self, input_shape):
+    def __init__(self, input_shape=None):
         self.input_shape = input_shape
-        self.ndims_ = len(input_shape)
-        assert self.ndims_ in [1, 2, 3], "ndims should be one of 1, 2, or 3. found: %d" % self.ndims_
+        if isinstance(input_shape, tuple) or isinstance(input_shape, list):
+            self.ndims_ = len(input_shape)
+            assert self.ndims_ in [2, 3], "ndims should be one of 2 or 3. found: %d" % self.ndims_
 
     @abstractmethod
     def build(self):
@@ -59,10 +60,10 @@ class Unet(HourglassNet):
     """
 
     def __init__(self,
-                 input_shape,
-                 enc_nf,
-                 dec_nf,
-                 conv_block):
+                 input_shape=None,
+                 enc_nf=None,
+                 dec_nf=None,
+                 conv_block=None):
         super(Unet, self).__init__(input_shape)
         self.enc_nf = enc_nf
         self.dec_nf = dec_nf
@@ -125,11 +126,11 @@ class BiDecoderNet(HourglassNet):
     """
 
     def __init__(self,
-                 input_shape,
-                 enc_params,
-                 dec_params,
-                 conv_block,
-                 squeeze_block):
+                 input_shape=None,
+                 enc_params=None,
+                 dec_params=None,
+                 conv_block=None,
+                 squeeze_block=None):
         super(BiDecoderNet, self).__init__(input_shape)
         self.enc_params = enc_params
         self.dec_params = dec_params

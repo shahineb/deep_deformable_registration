@@ -9,7 +9,6 @@ base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../..")
 sys.path.append(base_dir)
 from src.layers.diffeomorphicTransformer import diffeomorphicTransformer3D
 from src.networks.hourglassnets import Unet
-import utils.IOHandler as io
 
 
 class DiffeomorphicUnet(Unet):
@@ -23,11 +22,11 @@ class DiffeomorphicUnet(Unet):
     """
 
     def __init__(self,
-                 input_shape,
-                 enc_nf,
-                 dec_nf,
-                 conv_block,
-                 flow_nf):
+                 input_shape=None,
+                 enc_nf=None,
+                 dec_nf=None,
+                 conv_block=None,
+                 flow_nf=None):
         super(DiffeomorphicUnet, self).__init__(input_shape,
                                                 enc_nf,
                                                 dec_nf,
