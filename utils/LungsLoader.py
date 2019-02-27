@@ -168,6 +168,7 @@ class LungsLoader:
     def clip_scan(ct_scan):
         x = ct_scan.shape[1]
         clipping_min = np.min(ct_scan[:, (x // 2) - 5:(x // 2) + 5, 0:10])
+        clipping_min = min(clipping_min, np.min(ct_scan[:, (x // 2) - 5:(x // 2) + 5, -10:]))
         return np.clip(ct_scan, clipping_min, None)
 
     def preprocess_scans(self, scan_ids, width, height, depth, clipping=True, loop=False,
