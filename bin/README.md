@@ -34,8 +34,9 @@ Access `dashboard.ipynb` and go through the notebook to pick a session name, def
 
 __Training :__
 
-Run `python train.py --session_name=xxxxxx --gpu_id=x` where :
+Run `python train.py --session=xxxxxx --builder=xxxxx --gpu_id=x` where :
   - `--session_name`: name of the training session directory
+  - `--builder`: network to use in {`marianet`, `unet`}
   - `gpu_id`: optional, allows to switch gpu (default: `0`)
 
 

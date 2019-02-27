@@ -27,13 +27,13 @@ class MariaNet(BiDecoderNet):
     """
 
     def __init__(self,
-                 input_shape,
-                 enc_params,
-                 dec_params,
-                 conv_block,
-                 squeeze_block,
-                 def_flow_nf,
-                 lin_flow_nf):
+                 input_shape=None,
+                 enc_params=None,
+                 dec_params=None,
+                 conv_block=None,
+                 squeeze_block=None,
+                 def_flow_nf=None,
+                 lin_flow_nf=None):
         super(MariaNet, self).__init__(input_shape,
                                        enc_params,
                                        dec_params,

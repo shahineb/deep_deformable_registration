@@ -13,7 +13,8 @@ import utils.IOHandler as io
 
 
 class DiffeomorphicUnet(Unet):
-    """
+    """A Unet based architecture which output gradient flow is wrapped up
+    with a diffeomorphic transforming layer
     Args:
         input_shape (tuple): (width, height, depth)
         enc_params (list): list of parameters for sequence of encoding conv blocks
@@ -23,11 +24,11 @@ class DiffeomorphicUnet(Unet):
     """
 
     def __init__(self,
-                 input_shape,
-                 enc_nf,
-                 dec_nf,
-                 conv_block,
-                 flow_nf):
+                 input_shape=None,
+                 enc_nf=None,
+                 dec_nf=None,
+                 conv_block=None,
+                 flow_nf=None):
         super(DiffeomorphicUnet, self).__init__(input_shape,
                                                 enc_nf,
                                                 dec_nf,
@@ -59,3 +60,13 @@ class DiffeomorphicUnet(Unet):
         [deformed, displacements] = diffeomorphicTransformer3D()([src, flow])
 
         return Model(inputs=[src, tgt], outputs=[deformed, flow])
+
+    def load(self, path):
+        """Loads builder attributes
+
+        Args:
+            path (str): file path
+        """
+        kwargs = io.load_pickle(path)
+        del kwargs['ndims_']
+        self.__init__(**kwargs)

@@ -19,16 +19,24 @@ from src.training.luna_training import LunaTrainer
 parser = argparse.ArgumentParser()
 parser.add_argument("--session", required=True, type=Path,
                     help="name of training session to run")
+parser.add_argument("--builder", required=True, type=str,
+                    help="type of builder for neural net : {marianet, unet}")
 parser.add_argument("--gpu_id", required=False, type=int,
                     help="GPU to set session on")
 
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    session_dir = os.path.join(ConfigFile.bin_dir, args.session_name)
+    session_dir = os.path.join(ConfigFile.bin_dir, args.session)
 
     # Load model
-    net_builder = MariaNet(*7 * [[None]])  # TODO : proper initialization of empty MariaNet
+    if args.builder == "marianet":
+        net_builder = MariaNet()
+    elif args.builder == "unet":
+        net_builder = DiffeomorphicUnet()
+    else:
+        raise UnboundLocalError("Unknown specified builder")
+
     net_builder.load(os.path.join(session_dir, ConfigFile.builder_filename))
     model = net_builder.build()
 
