@@ -9,10 +9,12 @@ base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../..")
 sys.path.append(base_dir)
 from src.layers.diffeomorphicTransformer import diffeomorphicTransformer3D
 from src.networks.hourglassnets import Unet
+import utils.IOHandler as io
 
 
 class DiffeomorphicUnet(Unet):
-    """
+    """A Unet based architecture which output gradient flow is wrapped up
+    with a diffeomorphic transforming layer
     Args:
         input_shape (tuple): (width, height, depth)
         enc_params (list): list of parameters for sequence of encoding conv blocks
@@ -58,3 +60,13 @@ class DiffeomorphicUnet(Unet):
         [deformed, displacements] = diffeomorphicTransformer3D()([src, flow])
 
         return Model(inputs=[src, tgt], outputs=[deformed, flow])
+
+    def load(self, path):
+        """Loads builder attributes
+
+        Args:
+            path (str): file path
+        """
+        kwargs = io.load_pickle(path)
+        del kwargs['ndims_']
+        self.__init__(**kwargs)
