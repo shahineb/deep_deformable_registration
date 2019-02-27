@@ -164,13 +164,21 @@ class LungsLoader:
             else:
                 return ct_scan, origin, spacing
 
-    def preprocess_scans(self, scan_ids, width, height, depth, loop=False, shuffle=False):
+    @staticmethod
+    def clip_scan(ct_scan):
+        x = ct_scan.shape[1]
+        clipping_min = np.min(ct_scan[:, (x // 2) - 5:(x // 2) + 5, 0:10])
+        return np.clip(ct_scan, clipping_min, None)
+
+    def preprocess_scans(self, scan_ids, width, height, depth, clipping=True, loop=False,
+                         shuffle=False):
         """
         Preprocess a bulk of scan by rescaling each image to the target dimensions.
         :param scan_ids: List of the scan ids to preprocess.
         :param width: Target width for the preprocessed scans.
         :param height: Target height for the preprocessed scans.
         :param depth: Target depth for the preprocessed scans.
+        :param clipping: Whether the scans should be clipped
         :param loop: If true, endlessly loop on data (default: false).
         :param shuffle: If true, scans are shuffled (default: false)
         :return: A generator of ct_scan, origin, spacing tuples.
@@ -180,8 +188,14 @@ class LungsLoader:
                 random.shuffle(scan_ids)
             for scan_id in scan_ids:
                 ct_scan, origin, spacing = self.get_scan(scan_id, resample=True)
-                yield self.rescale_scan(
-                    ct_scan, origin, spacing, width, height, depth, normalize=True
+                if clipping:
+                    scan, origin, spacing = self.rescale_scan(
+                        ct_scan, origin, spacing, width, height, depth, normalize=True
+                        )
+                    yield self.clip_scan(scan), origin, spacing
+                else:
+                    yield self.rescale_scan(
+                        ct_scan, origin, spacing, width, height, depth, normalize=True
                     )
             if not loop:
                 break

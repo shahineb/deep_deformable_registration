@@ -26,6 +26,11 @@ class ScanHandler:
         self._plt.imshow(ct_scan[z, :, :], cmap=self._plt.cm.gray)
 
     def interact_display(self, ct_scan):
+        """
+        Plot a display of a ct scan with a cursor to explore the layers.
+        :param ct_scan: Ct scan to display
+        :return: None. Plot the scan.
+        """
         int_slider = widgets.IntSlider(
             min=0, max=ct_scan.shape[0] - 1, step=1, value=10
             )
