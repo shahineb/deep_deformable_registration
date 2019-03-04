@@ -27,7 +27,13 @@ class LunaTester:
     test_ids_filename = "test_ids.csv"
     test_scores_filename = "test_scores.csv"
 
-    def __init__(self, model, metric_dict, config_path, weights_path=None, use_segmentation=False, verbose=1):
+    def __init__(self, 
+                 model=None, 
+                 metric_dict=None,
+                 config_path=None,
+                 weights_path=None,
+                 use_segmentation=False,
+                 verbose=1):
         """
         Args:
             model (keras.model): model architecture
@@ -43,12 +49,14 @@ class LunaTester:
             self.model_.load_weights(self.weights_path_)
         self.metric_dict_ = metric_dict
         self.config = ConfigFile(session_name="")
-        self.config.load(config_path)
+        if config_path:
+            self.config.load(config_path)
         self.use_segmentation_ = use_segmentation
         self.verbose_ = verbose
         self.logger = verboselogs.VerboseLogger('verbose-demo')
         self.logger.addHandler(logging.StreamHandler())
-        self.logger.setLevel(verbose)
+        if verbose:
+            self.logger.setLevel(verbose)
 
     def get_metric_dict(self):
         return self.metric_dict_

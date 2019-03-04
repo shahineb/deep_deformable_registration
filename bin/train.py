@@ -61,4 +61,4 @@ if __name__ == "__main__":
     val_ids = pd.read_csv(os.path.join(session_dir, LunaTrainer.val_ids_filename)).values.squeeze()
 
     # Train
-    trainer.fit(train_ids, val_ids)
+    trainer.fit(train_ids, val_ids, use_affine=False)

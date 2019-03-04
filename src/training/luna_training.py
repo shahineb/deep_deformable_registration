@@ -75,8 +75,8 @@ class LunaTrainer:
             train_gen = gen.scan_and_seg_generator(train_ids, width, height, depth, loop, shuffle, use_affine)
             val_gen = gen.scan_and_seg_generator(val_ids, width, height, depth, loop, shuffle, use_affine)
         else:
-            train_gen = gen.scan_generator(train_ids, width, height, depth, loop, shuffle)
-            val_gen = gen.scan_generator(val_ids, width, height, depth, loop, shuffle)
+            train_gen = gen.scan_generator(train_ids, width, height, depth, loop, shuffle, use_affine)
+            val_gen = gen.scan_generator(val_ids, width, height, depth, loop, shuffle, use_affine)
 
         self.logger.verbose("Compiling model :\n")
         self.logger.verbose(f"\t - Optimizer : {self.config.optimizer.__dict__}\n")

@@ -131,7 +131,7 @@ class LungsLoader:
         result = f.Execute(img)
         new_scan = sitk.GetArrayFromImage(result)
         if normalize:
-            new_scan = (new_scan - np.mean(new_scan)) / np.var(new_scan)
+            new_scan = (new_scan - np.mean(new_scan)) / np.std(new_scan)
         return new_scan, result.GetOrigin(), result.GetSpacing()
 
     def get_scan(self, scan_id, resample=True):
