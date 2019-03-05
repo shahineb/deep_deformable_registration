@@ -23,6 +23,8 @@ parser.add_argument("--builder", required=True, type=str,
                     help="type of builder for neural net : {marianet, unet}")
 parser.add_argument("--gpu_id", required=False, type=int,
                     help="GPU to set session on")
+parser.add_argument("--weights", required=False, type=Path,
+                    help="path to model weights to load before training")
 
 
 if __name__ == "__main__":
@@ -49,11 +51,17 @@ if __name__ == "__main__":
     tf_config.allow_soft_placement = True
     set_session(tf.Session(config=tf_config))
     get_session().run(tf.global_variables_initializer())
+    
+    # Write weights path
+    weights_path = args.weights
+    if weights_path:
+        weights_path = os.path.join(session_dir, ConfigFile.checkpoints_dirname, weights_path)
 
     # Setup trainer
     trainer = LunaTrainer(model=model,
                           device=gpu,
                           config_path=os.path.join(session_dir, ConfigFile.pickle_filename),
+                          weights_path=weights_path,
                           tensorboard=True)
 
     # Load training and validation sets
