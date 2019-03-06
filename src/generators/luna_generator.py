@@ -9,7 +9,36 @@ from utils.LungsLoader import LungsLoader
 
 
 loader = LungsLoader()
+identity_affine = np.array([[1., 0., 0., 0., 0., 1., 0., 0., 0., 0., 1., 0.]])
 # TODO : add batchsize
+
+
+def atlas_generator(atlas_id, scans_ids, width, height, depth, loop=False, shuffle=False, use_affine=True):
+    """Iterates over scans with single target atlas scan to registrate
+
+    Args:
+        atlas_id (str): atlas id
+        scans_ids (list): list of scans ids to iterate over
+        width (int): desired output width
+        height (int): desired output height
+        depth (int): desired output depth
+        loop (boolean): if true, loops indefinitely over scans_ids (default: False)
+        shuffle (boolean): if true, shuffles scans_ids before each new loop (default: False)
+        use_affine (boolean): if true, yield affine identity transformation
+    """
+    atlas_scan_gen = loader.preprocess_scans([atlas_id], width, height, depth)
+    atlas_scan = next(atlas_scan_gen)[0][np.newaxis, :, :, :, np.newaxis]
+    scan_gen = loader.preprocess_scans(scans_ids, width, height, depth, loop=loop, shuffle=shuffle)
+    identity_flow = 0.5 * np.ones((1,) + (width, height, depth) + (3,))
+    try:
+        while True:
+            src_scan = next(scan_gen)[0]
+            if use_affine:
+                yield ([src_scan, atlas_scan], [atlas_scan, identity_flow, identity_affine])
+            else:
+                yield ([src_scan, atlas_scan], [atlas_scan, identity_flow])
+    except StopIteration:
+        raise StopIteration(f"Completed iteration over the f{len(scans_ids)} scans")
 
 
 def scan_generator(scans_ids, width, height, depth, loop=False, shuffle=False, use_affine=True):
@@ -22,10 +51,10 @@ def scan_generator(scans_ids, width, height, depth, loop=False, shuffle=False, u
         depth (int): desired output depth
         loop (boolean): if true, loops indefinitely over scans_ids (default: False)
         shuffle (boolean): if true, shuffles scans_ids before each new loop (default: False)
+        use_affine (boolean): if true, yield affine identity transformation
     """
     scan_gen = loader.preprocess_scans(scans_ids, width, height, depth, loop=loop, shuffle=shuffle)
     identity_flow = 0.5 * np.ones((1,) + (width, height, depth) + (3,))
-    identity = np.array([[1., 0., 0., 0., 0., 1., 0., 0., 0., 0., 1., 0.]])
     try:
         while True:
                 src_scan = next(scan_gen)[0]
@@ -33,7 +62,7 @@ def scan_generator(scans_ids, width, height, depth, loop=False, shuffle=False, u
                 src_scan = src_scan[np.newaxis, :, :, :, np.newaxis]
                 tgt_scan = tgt_scan[np.newaxis, :, :, :, np.newaxis]
                 if use_affine:
-                    yield ([src_scan, tgt_scan], [tgt_scan, identity_flow, identity])
+                    yield ([src_scan, tgt_scan], [tgt_scan, identity_flow, identity_affine])
                 else:
                     yield ([src_scan, tgt_scan], [tgt_scan, identity_flow])
     except StopIteration:
@@ -50,9 +79,9 @@ def scan_and_seg_generator(scans_ids, width, height, depth, loop=False, shuffle=
         depth (int): desired output depth
         loop (boolean): if true, loops indefinitely over scans_ids (default: False)
         shuffle (boolean): if true, shuffles scans_ids before each new loop (default: False)
+        use_affine (boolean): if true, yield affine identity transformation
     """
     identity_flow = 0.5 * np.ones((1,) + (width, height, depth) + (3,))
-    identity = np.array([[1., 0., 0., 0., 0., 1., 0., 0., 0., 0., 1., 0.]])
     while True:
         if shuffle:
             random.shuffle(scans_ids)
@@ -72,7 +101,7 @@ def scan_and_seg_generator(scans_ids, width, height, depth, loop=False, shuffle=
                 tgt_seg = tgt_seg[np.newaxis, :, :, :, np.newaxis]
 
                 if use_affine:
-                    yield ([src_scan, tgt_scan, src_seg], [tgt_scan, tgt_seg, identity_flow, identity])
+                    yield ([src_scan, tgt_scan, src_seg], [tgt_scan, tgt_seg, identity_flow, identity_affine])
                 else:
                     yield ([src_scan, tgt_scan, src_seg], [tgt_scan, tgt_seg, identity_flow])
         except StopIteration:

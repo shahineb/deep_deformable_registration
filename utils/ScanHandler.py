@@ -36,20 +36,40 @@ class ScanHandler:
             )
         interact(self.show, z=int_slider, ct_scan=fixed(ct_scan))
 
-    def display_n_slices(self, ct_scan, n, axes=None):
+    # def display_n_slices(self, ct_scan, n, axes=None):
+    #     prev_figsize = self._plt.figure().get_size_inches()
+    #     cols = 4
+    #     rows = n // 4 + 1
+    #     step = ct_scan.shape[0] // n
+    #     self._plt.figure(figsize=(16, rows * 4))
+    #     for i in range(n):
+    #         self._plt.subplot(rows, cols, i + 1)
+    #         cur_slice = ct_scan[step * i, :, :]
+    #         self._plt.imshow(cur_slice, cmap=self._plt.cm.gray)
+    #         self._plt.title(f"Slice {step * i}")
+    #     self._plt.tight_layout()
+    #     self._plt.show()
+    #     self._plt.figure(figsize=prev_figsize)
+
+    def display_n_slices(self, ct_scan, n, axes=None, return_fig=False):
         prev_figsize = self._plt.figure().get_size_inches()
         cols = 4
-        rows = n // 4 + 1
+        rows = max(n // 4, 1)
         step = ct_scan.shape[0] // n
-        self._plt.figure(figsize=(16, rows * 4))
+        fig, ax = self._plt.subplots(rows, cols, figsize=(16, rows * 4))
         for i in range(n):
-            self._plt.subplot(rows, cols, i + 1)
             cur_slice = ct_scan[step * i, :, :]
-            self._plt.imshow(cur_slice, cmap=self._plt.cm.gray)
-            self._plt.title(f"Slice {step * i}")
+            if rows > 1:
+                ax[i // cols][i % cols].imshow(cur_slice, cmap=self._plt.cm.gray)
+                ax[i // cols][i % cols].set_title(f"Slice {step * i}")
+            else:
+                ax[i % cols].imshow(cur_slice, cmap=self._plt.cm.gray)
+                ax[i % cols].set_title(f"Slice {step * i}")
         self._plt.tight_layout()
-        self._plt.show()
         self._plt.figure(figsize=prev_figsize)
+        self._plt.show()
+        if return_fig:
+            return fig, ax
 
     def show_vol(self, ct_scan, angle=0, save_path=None):
         """
