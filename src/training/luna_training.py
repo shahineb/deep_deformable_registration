@@ -21,7 +21,7 @@ class LunaTrainer:
         device (str): path to device to use for training
         config_path (str): path to serialized config file following src.training.ConfigFile
         weights_path (str): path to model weights (optional)
-        use_segmentation (boolean): if true trains with segmentation data
+        generator (str): generator type to use {"default", "segmentation", "atlas"}
         verbose (int): {0, 1}
         tensorboard (boolean): if true adds tensorboard callback
     """
@@ -29,7 +29,7 @@ class LunaTrainer:
     train_ids_filename = "train_ids.csv"
     val_ids_filename = "val_ids.csv"
 
-    def __init__(self, model, device, config_path, weights_path=None, use_segmentation=False, verbose=1, tensorboard=False):
+    def __init__(self, model, device, config_path, weights_path=None, generator="default", atlas_id=None, verbose=1, tensorboard=False):
         self.model_ = model
         self.device_ = device
         self.main_dir_ = os.path.dirname(config_path)
@@ -38,7 +38,11 @@ class LunaTrainer:
         self.weights_path_ = weights_path
         if self.weights_path_:
             self.model_.load_weights(self.weights_path_)
-        self.use_segmentation_ = use_segmentation
+        self.generator_ = generator
+        if self.generator_ == "atlas":
+            if not atlas_id:
+                raise RuntimeError("Must specify an atlas id if using atlas registration")
+            self.atlas_id_ = atlas_id
         self.verbose = verbose
         self.logger = verboselogs.VerboseLogger('verbose-demo')
         self.logger.addHandler(logging.StreamHandler())
@@ -71,14 +75,21 @@ class LunaTrainer:
         pd.DataFrame(val_ids).to_csv(os.path.join(self.config.session_dir, LunaTrainer.val_ids_filename), index=False, header=False)
 
         (width, height, depth) = self.config.input_shape
-        if self.use_segmentation_:
+        if self.generator_ == "default":
             train_gen = gen.scan_and_seg_generator(train_ids, width, height, depth, loop, shuffle, use_affine)
             val_gen = gen.scan_and_seg_generator(val_ids, width, height, depth, loop, shuffle, use_affine)
-        else:
+        elif self.generator_ == "segmentation":
             train_gen = gen.scan_generator(train_ids, width, height, depth, loop, shuffle, use_affine)
             val_gen = gen.scan_generator(val_ids, width, height, depth, loop, shuffle, use_affine)
+        elif self.generator_ == "atlas":
+            train_gen = gen.atlas_generator(self.atlas_id_, train_ids, width, height, depth, loop, shuffle, use_affine)
+            val_gen = gen.atlas_generator(self.atlas_id_, val_ids, width, height, depth, loop, shuffle, use_affine)
+            pass
+        else:
+            raise UnboundLocalError("Unkown specified generator")
 
         self.logger.verbose("Compiling model :\n")
+        self.logger.verbose(f"\t - Generator : {self.generator_}\n")
         self.logger.verbose(f"\t - Optimizer : {self.config.optimizer.__dict__}\n")
         self.logger.verbose(f"\t - Losses : {self.config.losses}\n")
         self.logger.verbose(f"\t - Losses weights : {self.config.loss_weights}\n")
