@@ -303,11 +303,12 @@ class LungsLoader:
         imageio.mimsave(target, images_raw, duration=len(images) * time_per_image)
 
     @staticmethod
-    def create_gifs(folder):
+    def create_gifs(folder, time_per_image=0.1):
         """
         Create gifs from the images recorder in ./folder/observations_xx/
-        :param folder:
-        :return:
+        :param folder: path_to_folder_observations (see folder above)
+        :param time_per_image: Time the gif stays on one image (default to 0.1)
+        :return: Nothing, gifs are saved in the folder.
         """
         # Retrieve images paths
         images_dict = defaultdict(list)
@@ -320,4 +321,4 @@ class LungsLoader:
         # Create gifs
         for name in images_dict:
             target = os.path.join(folder, name + ".gif")
-            LungsLoader._create_gif(images_dict[name], target)
+            LungsLoader._create_gif(images_dict[name], target, time_per_image)
