@@ -313,7 +313,8 @@ class LungsLoader:
         # Retrieve images paths
         images_dict = defaultdict(list)
         folders_sorting_key = lambda s: int(s.split("_")[-1])
-        obs_folders = sorted(os.listdir(folder), key=folders_sorting_key)
+        obs_folders = [f for f in os.listdir(folder) if f.split("_")[0] == "observations"]
+        obs_folders = sorted(obs_folders, key=folders_sorting_key)
         for obs_folder in obs_folders:
             for f in os.listdir(os.path.join(folder, obs_folder)):
                 image_name = "_".join(f.split("_")[:-1])
