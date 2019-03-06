@@ -1,7 +1,9 @@
 import os
 import warnings
+from collections import defaultdict
 import numpy as np
 import random
+import imageio
 import SimpleITK as sitk
 from keras.preprocessing import image as image_prep
 
@@ -292,3 +294,30 @@ class LungsLoader:
         spacing = np.array(list(reversed(itkimage.GetSpacing())))
 
         return ct_scan, origin, spacing
+
+    @staticmethod
+    def _create_gif(images, target, time_per_image=0.1):
+        images_raw = []
+        for f in images:
+            images_raw.append(imageio.imread(f))
+        imageio.mimsave(target, images_raw, duration=len(images) * time_per_image)
+
+    @staticmethod
+    def create_gifs(folder):
+        """
+        Create gifs from the images recorder in ./folder/observations_xx/
+        :param folder:
+        :return:
+        """
+        # Retrieve images paths
+        images_dict = defaultdict(list)
+        folders_sorting_key = lambda s: int(s.split("_")[-1])
+        obs_folders = sorted(os.listdir(folder), key=folders_sorting_key)
+        for obs_folder in obs_folders:
+            for f in os.listdir(os.path.join(folder, obs_folder)):
+                image_name = "_".join(f.split("_")[:-1])
+                images_dict[image_name].append(os.path.join(folder, obs_folder, f))
+        # Create gifs
+        for name in images_dict:
+            target = os.path.join(folder, name + ".gif")
+            LungsLoader._create_gif(images_dict[name], target)
