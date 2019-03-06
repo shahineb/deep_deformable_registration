@@ -25,6 +25,8 @@ parser.add_argument("--gpu_id", required=False, type=int,
                     help="GPU to set session on")
 parser.add_argument("--weights", required=False, type=Path,
                     help="path to model weights to load before training")
+parser.add_argument("--gen", required=False, type=str,
+                    help="generator to use")
 
 
 if __name__ == "__main__":
@@ -57,6 +59,10 @@ if __name__ == "__main__":
     if weights_path:
         weights_path = os.path.join(session_dir, ConfigFile.checkpoints_dirname, weights_path)
 
+    # Load training and validation sets
+    train_ids = pd.read_csv(os.path.join(session_dir, LunaTrainer.train_ids_filename)).values.squeeze()
+    val_ids = pd.read_csv(os.path.join(session_dir, LunaTrainer.val_ids_filename)).values.squeeze()
+    
     # Setup trainer
     trainer = LunaTrainer(model=model,
                           device=gpu,
@@ -64,9 +70,5 @@ if __name__ == "__main__":
                           weights_path=weights_path,
                           tensorboard=True)
 
-    # Load training and validation sets
-    train_ids = pd.read_csv(os.path.join(session_dir, LunaTrainer.train_ids_filename)).values.squeeze()
-    val_ids = pd.read_csv(os.path.join(session_dir, LunaTrainer.val_ids_filename)).values.squeeze()
-
     # Train
-    trainer.fit(train_ids, val_ids, use_affine=False)
+    trainer.fit(train_ids, val_ids, generator=args.gen, use_affine=False)

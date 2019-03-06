@@ -26,8 +26,15 @@ class ConfigFile:
     checkpoints_format = "chkpt_{epoch:02d}.h5"
     tensorboard_dirname = "tensorboard"
     builder_filename = "builder.pickle"
+    observations_dirname = "observations"
+    observations_subdir_format = "observations_{epoch:02d}"
+    observations_format = {'src': "src_{epoch:02d}.png",
+                           'tgt': "tgt_{epoch:02d}.png",
+                           'pred': "pred_{epoch:02d}.png",
+                           'grad_x': "grad_x_{epoch:02d}.png",
+                           'grad_y': "grad_y_{epoch:02d}.png"}
 
-    def __init__(self, session_name, input_shape=None, losses=None, loss_weights=None, optimizer=None, callbacks=None, metrics=None, epochs=None, steps_per_epoch=None, initial_epoch=0):
+    def __init__(self, session_name, input_shape=None, losses=None, loss_weights=None, optimizer=None, callbacks=None, metrics=None, epochs=None, steps_per_epoch=None, initial_epoch=0, atlas_id=None):
         """
         Args:
             session_name (str): name for the session
@@ -59,6 +66,7 @@ class ConfigFile:
         self.epochs = epochs
         self.steps_per_epoch = steps_per_epoch
         self.initial_epoch = initial_epoch
+        self.atlas_id = atlas_id
 
     def serialize(self, path=None):
         """Dumps object dictionnary as serialized pickle file
@@ -97,6 +105,7 @@ class ConfigFile:
         session_dir = os.path.join(ConfigFile.bin_dir, session_name)
         io.mkdir(ConfigFile.checkpoints_dirname, session_dir)
         io.mkdir(ConfigFile.tensorboard_dirname, session_dir)
+        io.mkdir(ConfigFile.observations_dirname, session_dir)
         ConfigFile._write_gitignore(session_dir)
 
     @staticmethod
@@ -152,6 +161,9 @@ class ConfigFile:
     def add_callback(self, callback):
         assert issubclass(callback.__class__, keras.callbacks.Callback), f"Callback {callback} is not valid"
         self.callbacks.append(callback)
+            
+    def set_atlas_id(self, atlas_id):
+        self.atlas_id = atlas_id
 
     def set_metrics(self, metrics):
         self.metrics = metrics
@@ -191,3 +203,6 @@ class ConfigFile:
 
     def get_inital_epoch(self):
         return self.initial_epoch
+    
+    def get_atlas_id(self):
+        return atlas_id

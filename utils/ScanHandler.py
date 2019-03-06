@@ -36,21 +36,6 @@ class ScanHandler:
             )
         interact(self.show, z=int_slider, ct_scan=fixed(ct_scan))
 
-    # def display_n_slices(self, ct_scan, n, axes=None):
-    #     prev_figsize = self._plt.figure().get_size_inches()
-    #     cols = 4
-    #     rows = n // 4 + 1
-    #     step = ct_scan.shape[0] // n
-    #     self._plt.figure(figsize=(16, rows * 4))
-    #     for i in range(n):
-    #         self._plt.subplot(rows, cols, i + 1)
-    #         cur_slice = ct_scan[step * i, :, :]
-    #         self._plt.imshow(cur_slice, cmap=self._plt.cm.gray)
-    #         self._plt.title(f"Slice {step * i}")
-    #     self._plt.tight_layout()
-    #     self._plt.show()
-    #     self._plt.figure(figsize=prev_figsize)
-
     def display_n_slices(self, ct_scan, n, axes=None, return_fig=False):
         prev_figsize = self._plt.figure().get_size_inches()
         cols = 4
@@ -119,7 +104,149 @@ class ScanHandler:
         if save_path:
             self._plt.savefig(save_path)
         self._plt.show()
+        
+    def plot_def(def_field, axis, height, return_fig=False):
+        '''axis = 0 : z= height
+            axis = 1 : x= height
+            axis = 2 : y = height
+            def field of shape (1, z, x, y, 3)
 
+        '''
+        fig = self._plt.figure()
+        ax = fig.add_subplot(111)
+        if axis == 0:
+            # fixed z
+            assert (height >= def_field[0].shape[axis]),"Height is bigger than shape"
+            x = np.linspace(-2, 2, def_field[0,height,:,:,1].shape[0])
+            y = np.linspace(-2, 2, def_field[0,height,:,:,1].shape[1])
+            def_f_x = def_field[0,height,:,:,1]
+            def_f_y = def_field[0,height,:,:,2]
+            color = 2 * np.log(np.hypot(def_f_x, def_f_y))
+            ax.streamplot(x, y, def_f_x, def_f_y, color=color, linewidth=1, cmap=self._plt.cm.inferno,
+                  density=2, arrowstyle='->', arrowsize=1.5)
+            ax.set_xlabel('$x$')
+            ax.set_ylabel('$y$')
+            ax.set_xlim(-2,2)
+            ax.set_ylim(-2,2)
+            ax.set_aspect('equal')
+            self._plt.show()
+            if return_fig:
+                return fig, ax
+        elif axis == 1:
+            # fixed x
+            assert (height >= def_field[0].shape[axis]),"Height is bigger than shape"
+            x = np.linspace(-2, 2, def_field[0,:,height,:,0].shape[0])
+            y = np.linspace(-2, 2, def_field[0,:,height,:,0].shape[1])
+            def_f_x = def_field[0,:,height,:,0]
+            def_f_y = def_field[0,:,height,:,2]
+            color = 2 * np.log(np.hypot(def_f_x, def_f_y))
+            ax.streamplot(x, y, def_f_x, def_f_y, color=color, linewidth=1, cmap=self._plt.cm.inferno,
+                  density=2, arrowstyle='->', arrowsize=1.5)
+            ax.set_xlabel('$x$')
+            ax.set_ylabel('$y$')
+            ax.set_xlim(-2,2)
+            ax.set_ylim(-2,2)
+            ax.set_aspect('equal')
+            self._plt.show()
+            if return_fig:
+                return fig, ax
+        elif axis == 2:
+                # fixed y
+            assert (height >= def_field[0].shape[axis]),"Height is bigger than shape"
+            x = np.linspace(-2, 2, def_field[0,:,:,height,0].shape[0])
+            y = np.linspace(-2, 2, def_field[0,:,:,height,0].shape[1])
+            def_f_x = def_field[0,:,:,height,0]
+            def_f_y = def_field[0,:,:,height,1]
+            color = 2 * np.log(np.hypot(def_f_x, def_f_y))
+            ax.streamplot(x, y, def_f_x, def_f_y, color=color, linewidth=1, cmap=self._plt.cm.inferno,
+                  density=2, arrowstyle='->', arrowsize=1.5)
+            ax.set_xlabel('$x$')
+            ax.set_ylabel('$y$')
+            ax.set_xlim(-2,2)
+            ax.set_ylim(-2,2)
+            ax.set_aspect('equal')
+            self._plt.show()
+            if return_fig:
+                return fig, ax 
+            
+    def return_def(self, def_field, axis, height):
+        '''axis = 0 : z= height
+                axis = 1 : x= height
+                axis = 2 : y = height
+                def field of shape (1, z, x, y, 3)
+
+            '''
+        if axis == 0:
+            # fixed z
+            assert (height <= def_field[0].shape[axis]),"Height is bigger than shape"
+            x = np.linspace(-2, 2, def_field[0,height,:,:,1].shape[0])
+            y = np.linspace(-2, 2, def_field[0,height,:,:,1].shape[1])
+            def_f_x = def_field[0,height,:,:,1]
+            def_f_y = def_field[0,height,:,:,2]
+            label_x = '$x$'
+            label_y = '$y$'
+            return [x, y, def_f_x, def_f_y, label_x, label_y]
+        elif axis == 1:
+            # fixed x
+            assert (height <= def_field[0].shape[axis]),"Height is bigger than shape"
+            x = np.linspace(-2, 2, def_field[0,:,height,:,0].shape[0])
+            y = np.linspace(-2, 2, def_field[0,:,height,:,0].shape[1])
+            def_f_x = def_field[0,:,height,:,0]
+            def_f_y = def_field[0,:,height,:,2]
+            label_x = '$z$'
+            label_y = '$y$'
+            return [x, y, def_f_x, def_f_y, label_x, label_y]
+        elif axis == 2:
+            # fixed y
+            assert (height <= def_field[0].shape[axis]),"Height is bigger than shape"
+            x = np.linspace(-2, 2, def_field[0,:,:,height,0].shape[0])
+            y = np.linspace(-2, 2, def_field[0,:,:,height,0].shape[1])
+            def_f_x = def_field[0,:,:,height,0]
+            def_f_y = def_field[0,:,:,height,1]
+            label_x = '$z$'
+            label_y = '$x$'
+            return [x, y, def_f_x, def_f_y, label_x, label_y]      
+
+    def display_n_def(self, def_field, n, axis, return_fig=False):
+        """def_field, field of shape (1, z, x, y, 3)
+        n : number of slices
+        axis : axis along
+        
+        """
+        prev_figsize = self._plt.figure().get_size_inches()
+        cols = 4
+        rows = max(n // 4, 1)
+        step = def_field[0].shape[axis] // n
+        fig, ax = self._plt.subplots(rows, cols, figsize=(16, rows * 4))
+        for i in range(n):
+            if rows > 1:
+                [x, y, def_f_x, def_f_y, label_x, label_y] = self.return_def(def_field, axis, step*i)
+                color = 2 * np.log(np.hypot(def_f_x, def_f_y))
+                ax[i // cols][i % cols].streamplot(x, y, def_f_x, def_f_y, color=color, linewidth=1, cmap=self._plt.cm.inferno,
+                                                   density=2, arrowstyle='->', arrowsize=1.5)
+                ax[i // cols][i % cols].set_xlabel(label_x)
+                ax[i // cols][i % cols].set_ylabel(label_y)
+                ax[i // cols][i % cols].set_xlim(-2,2)
+                ax[i // cols][i % cols].set_xlim(-2,2)
+                ax[i // cols][i % cols].set_aspect('equal')
+                ax[i // cols][i % cols].set_title(f"Slice {step * i}")
+            else:
+                [x, y, def_f_x, def_f_y, label_x, label_y] = self.return_def(def_field, axis, step*i)
+                color = 2 * np.log(np.hypot(def_f_x, def_f_y))
+                ax[i % cols].streamplot(x, y, def_f_x, def_f_y, color=color, linewidth=1, cmap=self._plt.cm.inferno,
+                                                   density=2, arrowstyle='->', arrowsize=1.5)
+                ax[i % cols].set_xlabel(label_x)
+                ax[i % cols].set_ylabel(label_y)
+                ax[i % cols].set_xlim(-2,2)
+                ax[i % cols].set_xlim(-2,2)
+                ax[i % cols].set_aspect('equal')
+                ax[i % cols].set_title(f"Slice {step * i}")
+        self._plt.tight_layout()
+        self._plt.figure(figsize=prev_figsize)
+        self._plt.show()
+        if return_fig:
+            return fig, ax
+        
     @staticmethod
     def reduce(ct_scan, ratio=0.5, strategy="skipping"):
         """
@@ -144,3 +271,4 @@ class ScanHandler:
     @staticmethod
     def _reduce_averaging(ct_scan, ratio):
         raise NotImplementedError("CT scan reduction straty averaging is not implemented yet.")
+    

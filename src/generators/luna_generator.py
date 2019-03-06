@@ -33,6 +33,7 @@ def atlas_generator(atlas_id, scans_ids, width, height, depth, loop=False, shuff
     try:
         while True:
             src_scan = next(scan_gen)[0]
+            src_scan = src_scan[np.newaxis, :, :, :, np.newaxis]
             if use_affine:
                 yield ([src_scan, atlas_scan], [atlas_scan, identity_flow, identity_affine])
             else:

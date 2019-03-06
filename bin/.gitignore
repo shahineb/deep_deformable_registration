@@ -1,4 +1,4 @@
-core/*
+core
 =9.0
 fetch_logs.sh
 !.gitignore
