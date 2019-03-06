@@ -48,7 +48,7 @@ class DiffeomorphicUnet(Unet):
         x = unet.output
 
         # Transform the results into a flow field
-        flow = conv_layer(self.def_flow_nf,
+        flow = conv_layer(self.flow_nf,
                           kernel_size=3,
                           padding='same',
                           activation='sigmoid',

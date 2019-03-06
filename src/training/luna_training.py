@@ -21,7 +21,6 @@ class LunaTrainer:
         device (str): path to device to use for training
         config_path (str): path to serialized config file following src.training.ConfigFile
         weights_path (str): path to model weights (optional)
-        use_segmentation (boolean): if true trains with segmentation data
         verbose (int): {0, 1}
         tensorboard (boolean): if true adds tensorboard callback
     """
@@ -29,7 +28,7 @@ class LunaTrainer:
     train_ids_filename = "train_ids.csv"
     val_ids_filename = "val_ids.csv"
 
-    def __init__(self, model, device, config_path, weights_path=None, use_segmentation=False, verbose=1, tensorboard=False):
+    def __init__(self, model, device, config_path, weights_path=None, verbose=1, tensorboard=False):
         self.model_ = model
         self.device_ = device
         self.main_dir_ = os.path.dirname(config_path)
@@ -38,7 +37,6 @@ class LunaTrainer:
         self.weights_path_ = weights_path
         if self.weights_path_:
             self.model_.load_weights(self.weights_path_)
-        self.use_segmentation_ = use_segmentation
         self.verbose = verbose
         self.logger = verboselogs.VerboseLogger('verbose-demo')
         self.logger.addHandler(logging.StreamHandler())
@@ -56,13 +54,14 @@ class LunaTrainer:
         """
         return self.config.__dict__
 
-    def fit(self, train_ids, val_ids, loop=True, shuffle=True, use_affine=True):
+    def fit(self, train_ids, val_ids, generator="default", loop=True, shuffle=True, use_affine=True):
         """Trains model
 
         Args:
             train_ids (list): list of training scans ids
             val_ids (list): list of validation scans ids
             loop (boolean): If true, endlessly loop on data (default: false).
+            generator (str): generator type to use {"luna", "segmentation", "atlas"}
             shuffle (boolean): If true, scans are shuffled (default: false)
         """
         self.logger.verbose(f"Number of training scans : {len(train_ids)}\n")
@@ -71,14 +70,23 @@ class LunaTrainer:
         pd.DataFrame(val_ids).to_csv(os.path.join(self.config.session_dir, LunaTrainer.val_ids_filename), index=False, header=False)
 
         (width, height, depth) = self.config.input_shape
-        if self.use_segmentation_:
+        
+        if generator == "luna":
+            train_gen = gen.scan_generator(train_ids, width, height, depth, loop, shuffle, use_affine)
+            val_gen = gen.scan_generator(val_ids, width, height, depth, loop, shuffle, use_affine)
+        elif generator == "segmentation":
             train_gen = gen.scan_and_seg_generator(train_ids, width, height, depth, loop, shuffle, use_affine)
             val_gen = gen.scan_and_seg_generator(val_ids, width, height, depth, loop, shuffle, use_affine)
+        elif generator == "atlas":
+            if not self.config.atlas_id:
+                raise RuntimeError("Must specify an atlas id if using atlas registration")
+            train_gen = gen.atlas_generator(self.config.atlas_id, train_ids, width, height, depth, loop, shuffle, use_affine)
+            val_gen = gen.atlas_generator(self.config.atlas_id, val_ids, width, height, depth, loop, shuffle, use_affine)
         else:
-            train_gen = gen.scan_generator(train_ids, width, height, depth, loop, shuffle)
-            val_gen = gen.scan_generator(val_ids, width, height, depth, loop, shuffle)
+            raise UnboundLocalError("Unkown specified generator")
 
         self.logger.verbose("Compiling model :\n")
+        self.logger.verbose(f"\t - Generator : {generator}\n")
         self.logger.verbose(f"\t - Optimizer : {self.config.optimizer.__dict__}\n")
         self.logger.verbose(f"\t - Losses : {self.config.losses}\n")
         self.logger.verbose(f"\t - Losses weights : {self.config.loss_weights}\n")
@@ -89,7 +97,8 @@ class LunaTrainer:
                             metrics=self.config.metrics)
 
         self.logger.verbose("******** Initiating training *********")
-        validation_steps = int(0.2 * self.config.steps_per_epoch)
+        validation_steps = max(int(0.2 * self.config.steps_per_epoch), 1)
+        
         with tf.device(self.device_):
             training_loss = self.model_.fit_generator(generator=train_gen,
                                                       initial_epoch=self.config.initial_epoch,

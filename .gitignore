@@ -112,3 +112,7 @@ venv.bak/
 
 # Readings
 docs/readings
+
+# Other
+bin/core/*
+bin/=9.0
