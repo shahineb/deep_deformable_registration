@@ -1,4 +1,5 @@
 core
 =9.0
 fetch_logs.sh
+fetch_observations.sh
 !.gitignore

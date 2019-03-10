@@ -28,12 +28,14 @@ class DiffeomorphicUnet(Unet):
                  enc_nf=None,
                  dec_nf=None,
                  conv_block=None,
-                 flow_nf=None):
+                 flow_nf=None,
+                 use_segmentation=False):
         super(DiffeomorphicUnet, self).__init__(input_shape,
                                                 enc_nf,
                                                 dec_nf,
                                                 conv_block)
         self.flow_nf = flow_nf
+        self.use_segmentation = use_segmentation
 
     def build(self):
         # Get proper convolutional layer
@@ -57,7 +59,13 @@ class DiffeomorphicUnet(Unet):
                           kernel_regularizer=l1(1e-5))(x)
 
         # Wrap the source with the flow
-        [deformed, displacements] = diffeomorphicTransformer3D()([src, flow])
+        [deformed, displacements] = diffeomorphicTransformer3D(name="deformed")([src, flow])
+
+        # Add segmentation input
+        if self.use_segmentation:
+            src_seg = KL.Input(shape=self.input_shape + (1,))
+            [deformed_seg, _] = diffeomorphicTransformer3D(name="deformed_seg")([src_seg, flow])
+            return Model(inputs=[src, tgt, src_seg], outputs=[deformed, flow, deformed_seg])
 
         return Model(inputs=[src, tgt], outputs=[deformed, flow])
 
@@ -69,4 +77,7 @@ class DiffeomorphicUnet(Unet):
         """
         kwargs = io.load_pickle(path)
         del kwargs['ndims_']
+        if "use_segmentation" not in kwargs.keys():
+            # TODO : write more generic weight to set unexisting attributes to default
+            kwargs["use_segmentation"] = False
         self.__init__(**kwargs)
