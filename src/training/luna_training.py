@@ -28,7 +28,13 @@ class LunaTrainer:
     train_ids_filename = "train_ids.csv"
     val_ids_filename = "val_ids.csv"
 
-    def __init__(self, model, device, config_path, weights_path=None, verbose=1, tensorboard=False):
+    def __init__(self,
+                 model,
+                 device,
+                 config_path,
+                 weights_path=None,
+                 verbose=1,
+                 tensorboard=False):
         self.model_ = model
         self.device_ = device
         self.main_dir_ = os.path.dirname(config_path)
@@ -54,7 +60,7 @@ class LunaTrainer:
         """
         return self.config.__dict__
 
-    def fit(self, train_ids, val_ids, generator="default", loop=True, shuffle=True, use_affine=True):
+    def fit(self, train_ids, val_ids, generator="luna", loop=True, shuffle=True, use_affine=False):
         """Trains model
 
         Args:
@@ -70,7 +76,7 @@ class LunaTrainer:
         pd.DataFrame(val_ids).to_csv(os.path.join(self.config.session_dir, LunaTrainer.val_ids_filename), index=False, header=False)
 
         (width, height, depth) = self.config.input_shape
-        
+
         if generator == "luna":
             train_gen = gen.scan_generator(train_ids, width, height, depth, loop, shuffle, use_affine)
             val_gen = gen.scan_generator(val_ids, width, height, depth, loop, shuffle, use_affine)
@@ -103,7 +109,7 @@ class LunaTrainer:
 
         self.logger.verbose("******** Initiating training *********")
         validation_steps = max(int(0.2 * self.config.steps_per_epoch), 1)
-        
+
         with tf.device(self.device_):
             training_loss = self.model_.fit_generator(generator=train_gen,
                                                       initial_epoch=self.config.initial_epoch,

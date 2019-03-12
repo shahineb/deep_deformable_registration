@@ -2,7 +2,25 @@ import numpy as np
 from sklearn.metrics import mean_squared_error, normalized_mutual_info_score
 from scipy.ndimage import morphology
 
+CONTINOUS = "CONTINOUS"
+DISCRETE = "DISCRETE"
 
+
+def metric(domain):
+    """Decorator to specify domain metric is meant for
+
+    Args:
+        domain (str):
+            - "CONTINUOUS": real valued arrays
+            - "DISCRETE": labels arrays
+    """
+    def metric_decorator(func):
+        func._domain = domain
+        return func
+    return metric_decorator
+
+
+@metric(CONTINOUS)
 def cross_correlation(vol1, vol2):
     """Cross correlation between two N-d arrays
 
@@ -18,6 +36,7 @@ def cross_correlation(vol1, vol2):
     return np.square(cov_12 / np.sqrt(var_1 * var_2 + 1e-5))
 
 
+@metric(CONTINOUS)
 def mse(vol1, vol2):
     """Mean Square Error between two N-d arrays
 
@@ -52,6 +71,7 @@ def _surface_distance(seg1, seg2, sampling=1, connectivity=1):
     return sds
 
 
+@metric(DISCRETE)
 def haussdorf_distance(seg1, seg2):
     """Hauddsorf Distance between two segmentation volumes
 
@@ -63,6 +83,7 @@ def haussdorf_distance(seg1, seg2):
     return sds.max()
 
 
+@metric(DISCRETE)
 def msd(seg1, seg2):
     """Mean Surface Distance between two segmentation volumes
 
@@ -74,6 +95,7 @@ def msd(seg1, seg2):
     return sds.mean()
 
 
+@metric(DISCRETE)
 def rms(seg1, seg2):
     """Residual Mean Square Distance between two segmentation volumes
 
@@ -85,6 +107,7 @@ def rms(seg1, seg2):
     return np.sqrt((sds**2).mean())
 
 
+@metric(DISCRETE)
 def dice_score(seg1, seg2):
     """Dice score between two segmentation volumes
     Background must be labeled 0
@@ -98,6 +121,7 @@ def dice_score(seg1, seg2):
     return numerator / denominator
 
 
+@metric(DISCRETE)
 def mutual_info(seg1, seg2):
     """Mutual information between two segmentation volumes
 

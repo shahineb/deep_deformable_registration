@@ -7,12 +7,28 @@ base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../..")
 sys.path.append(base_dir)
 from utils.LungsLoader import LungsLoader
 
-
+catalog = dict()
 loader = LungsLoader()
 identity_affine = np.array([[1., 0., 0., 0., 0., 1., 0., 0., 0., 0., 1., 0.]])
 # TODO : add batchsize
 
 
+def generator(marker):
+    """Workaround wrapper to map each generator to a string
+
+    Args:
+        marker (str)
+    """
+    global generator_catalog
+
+    def wrapper(func):
+        func._marker = marker
+        catalog[marker] = func
+        return func
+    return wrapper
+
+
+@generator("atlas")
 def atlas_generator(atlas_id, scans_ids, width, height, depth, loop=False, shuffle=False, use_affine=True):
     """Iterates over scans with single target atlas scan to registrate
 
@@ -42,6 +58,7 @@ def atlas_generator(atlas_id, scans_ids, width, height, depth, loop=False, shuff
         raise StopIteration(f"Completed iteration over the f{len(scans_ids)} scans")
 
 
+@generator("luna")
 def scan_generator(scans_ids, width, height, depth, loop=False, shuffle=False, use_affine=True):
     """Iterates over luna dataset yielding scans
 
@@ -70,6 +87,7 @@ def scan_generator(scans_ids, width, height, depth, loop=False, shuffle=False, u
         raise StopIteration(f"Completed iteration over the f{len(scans_ids)} scans")
 
 
+@generator("luna_seg")
 def scan_and_seg_generator(scans_ids, width, height, depth, loop=False, shuffle=False, use_affine=True):
     """Iterates over luna dataset yielding scans and their segmentation
 
@@ -112,6 +130,7 @@ def scan_and_seg_generator(scans_ids, width, height, depth, loop=False, shuffle=
                 raise StopIteration(f"Completed iteration over the f{len(scans_ids)} scans")
 
 
+@generator("atlas_seg")
 def atlas_seg_generator(atlas_id, scans_ids, width, height, depth, loop=False, shuffle=False, use_affine=True):
     """Iterates over luna dataset yielding scans and their segmentation
 

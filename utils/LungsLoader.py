@@ -200,7 +200,7 @@ class LungsLoader:
                 else:
                     yield self.rescale_scan(
                         ct_scan, origin, spacing, width, height, depth, normalize=True
-                    )
+                        )
             if not loop:
                 break
 

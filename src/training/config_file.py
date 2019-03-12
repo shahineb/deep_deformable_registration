@@ -26,6 +26,7 @@ class ConfigFile:
     checkpoints_format = "chkpt_{epoch:02d}.h5"
     tensorboard_dirname = "tensorboard"
     builder_filename = "builder.pickle"
+    scores_dirname = "scores"
     observations_dirname = "observations"
     observations_subdir_format = "observations_{epoch:02d}"
     observations_format = {'src': "src_{epoch:02d}.png",
@@ -107,6 +108,7 @@ class ConfigFile:
         io.mkdir(ConfigFile.checkpoints_dirname, session_dir)
         io.mkdir(ConfigFile.tensorboard_dirname, session_dir)
         io.mkdir(ConfigFile.observations_dirname, session_dir)
+        io.mkdir(ConfigFile.scores_dirname, session_dir)
         ConfigFile._write_gitignore(session_dir)
 
     @staticmethod
@@ -162,7 +164,7 @@ class ConfigFile:
     def add_callback(self, callback):
         assert issubclass(callback.__class__, keras.callbacks.Callback), f"Callback {callback} is not valid"
         self.callbacks.append(callback)
-            
+
     def set_atlas_id(self, atlas_id):
         self.atlas_id = atlas_id
 
@@ -204,6 +206,6 @@ class ConfigFile:
 
     def get_inital_epoch(self):
         return self.initial_epoch
-    
+
     def get_atlas_id(self):
         return atlas_id

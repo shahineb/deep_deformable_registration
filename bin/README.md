@@ -10,9 +10,13 @@ session_name
 │   └── chkpt_xx.h5
 ├── tensorboard
 │   └── tensorboard logs
+├── observations
+│   └── observations_xx
+├── scores
 ├── train_ids.csv
 ├── val_ids.csv
-└── test_ids.csv
+├── test_ids.csv
+└── logs.txt
 ```
 
 It contains :
@@ -21,9 +25,12 @@ It contains :
 - `config.pickle`: a serialized training configuration file containing all information about how training should be performed (losses, optimizers, epochs ...)
 - `checkpoints`: directory where model weights checkpoints are stored
 - `tensorboard`: directory where tensorboard logs are stored
+- `observations`: directory where model output is saved in png format for each epoch
+- `scores`: directory where model evaluation dataframes are stored as csv files
 - `train_ids.csv`, `val_ids.csv`, `test_ids.csv`: ids of luna scans used for training, validation and testing
+- `logs.txt`: output training logs
 
-(see more in wiki or in `tutorial.ipynb`)
+(see more in `tutorial.ipynb`) --> deprecated tutorial, to update
 
 
 ## Run a training session
@@ -34,11 +41,12 @@ Access `dashboard.ipynb` and go through the notebook to pick a session name, def
 
 __Training :__
 
-Run `python train.py --session=xxxxxx --builder=xxxxx --gpu_id=x` where :
-  - `--session_name`: name of the training session directory
+Run `python train.py --session --builder --gen --gpu_id --weights > session_name/logs.txt` where :
+  - `--session`: name of the training session directory
   - `--builder`: network to use in {`marianet`, `unet`}
-  - `gpu_id`: optional, allows to switch gpu (default: `0`)
-
+  - `--gen`: generator to use in {`luna`, `luna_seg`, `atlas`, `atlas_seg`}
+  - `--gpu_id`: optional, allows to switch gpu (default: `0`)
+  - `--weights`: optional, checkpoints weights to load for training formatted as `chkpt_xx.h5`
 
 __Monitoring :__
 

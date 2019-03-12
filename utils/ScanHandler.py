@@ -104,8 +104,8 @@ class ScanHandler:
         if save_path:
             self._plt.savefig(save_path)
         self._plt.show()
-        
-    def plot_def(def_field, axis, height, return_fig=False):
+
+    def plot_def(self, def_field, axis, height, return_fig=False):
         '''axis = 0 : z= height
             axis = 1 : x= height
             axis = 2 : y = height
@@ -116,8 +116,8 @@ class ScanHandler:
         ax = fig.add_subplot(111)
         if axis == 0:
             # fixed z
-            assert (height >= def_field[0].shape[axis]),"Height is bigger than shape"
-            x = np.linspace(-2, 2, def_field[0,height,:,:,1].shape[0])
+            assert (height >= def_field[0].shape[axis]), "Height is bigger than shape"
+            x = np.linspace(-2, 2, def_field[0, height,:,:,1].shape[0])
             y = np.linspace(-2, 2, def_field[0,height,:,:,1].shape[1])
             def_f_x = def_field[0,height,:,:,1]
             def_f_y = def_field[0,height,:,:,2]
@@ -167,8 +167,8 @@ class ScanHandler:
             ax.set_aspect('equal')
             self._plt.show()
             if return_fig:
-                return fig, ax 
-            
+                return fig, ax
+
     def return_def(self, def_field, axis, height):
         '''axis = 0 : z= height
                 axis = 1 : x= height
@@ -205,13 +205,13 @@ class ScanHandler:
             def_f_y = def_field[0,:,:,height,1]
             label_x = '$z$'
             label_y = '$x$'
-            return [x, y, def_f_x, def_f_y, label_x, label_y]      
+            return [x, y, def_f_x, def_f_y, label_x, label_y]
 
     def display_n_def(self, def_field, n, axis, return_fig=False):
         """def_field, field of shape (1, z, x, y, 3)
         n : number of slices
         axis : axis along
-        
+
         """
         prev_figsize = self._plt.figure().get_size_inches()
         cols = 4
@@ -246,7 +246,7 @@ class ScanHandler:
         self._plt.show()
         if return_fig:
             return fig, ax
-        
+
     @staticmethod
     def reduce(ct_scan, ratio=0.5, strategy="skipping"):
         """
@@ -271,4 +271,3 @@ class ScanHandler:
     @staticmethod
     def _reduce_averaging(ct_scan, ratio):
         raise NotImplementedError("CT scan reduction straty averaging is not implemented yet.")
-    
