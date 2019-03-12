@@ -23,7 +23,7 @@ class OutputObserver(Callback):
     """
 
     def __init__(self, session_dir, input_shape, src_filepath, tgt_filepath, pred_filepath, grad_x_filepath, grad_y_filepath,
-                 src_id=None, tgt_id=None, random_seed=13):
+                 pred_seg_filepath=None, src_id=None, tgt_id=None, use_segmentation=False, random_seed=13):
         self.session_dir = session_dir
         self.input_shape = input_shape
         self.src_filepath = src_filepath
@@ -31,6 +31,8 @@ class OutputObserver(Callback):
         self.pred_filepath = pred_filepath
         self.grad_x_filepath = grad_x_filepath
         self.grad_y_filepath = grad_y_filepath
+        self.pred_seg_filepath = pred_seg_filepath
+        self.use_segmentation = use_segmentation
         self.random_seed_ = random_seed
         random.seed(random_seed)
         self.src_id = src_id or random.choice(loader.get_scan_ids())
@@ -43,6 +45,7 @@ class OutputObserver(Callback):
         pred_filepath = self.pred_filepath.format(epoch=epoch + 1, **logs)
         grad_x_filepath = self.grad_x_filepath.format(epoch=epoch + 1, **logs)
         grad_y_filepath = self.grad_y_filepath.format(epoch=epoch + 1, **logs)
+        pred_seg_filepath = self.pred_seg_filepath.format(epoch=epoch + 1, **logs)
         
         observations_dir = os.path.join(self.session_dir, ConfigFile.observations_dirname)
         io.mkdir(observations_subdir_format, observations_dir)
@@ -51,7 +54,14 @@ class OutputObserver(Callback):
         tgt_gen = loader.preprocess_scans([self.tgt_id], *self.input_shape)
         src = next(src_gen)[0][np.newaxis, :, :, :, np.newaxis]
         tgt = next(tgt_gen)[0][np.newaxis, :, :, :, np.newaxis]
-        output = self.model.predict([src, tgt])
+        
+        if self.use_segmentation:
+            tgt_seg_gen = loader.preprocess_segmentations([self.tgt_id], *self.input_shape)
+            tgt_seg = next(tgt_seg_gen)[0][np.newaxis, :, :, :, np.newaxis]
+            output = self.model.predict([src, tgt, tgt_seg])
+        else:
+            output = self.model.predict([src, tgt])
+
         
         fig, _ = handler.display_n_slices(src.squeeze(), n=4, return_fig=True)
         fig.savefig(os.path.join(observations_dir, observations_subdir_format, src_filepath))
@@ -68,3 +78,9 @@ class OutputObserver(Callback):
         fig, _ = handler.display_n_slices(output[1].squeeze()[:, :, :, 1], n=4, return_fig=True)
         fig.savefig(os.path.join(observations_dir, observations_subdir_format, grad_y_filepath))
         plt.close()
+        if self.use_segmentation:
+            fig, _ = handler.display_n_slices(output[2].squeeze(), n=4, return_fig=True)
+            fig.savefig(os.path.join(observations_dir, observations_subdir_format, pred_seg_filepath))
+            plt.close()
+        del fig, _
+        

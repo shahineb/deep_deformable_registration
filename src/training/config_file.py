@@ -32,7 +32,8 @@ class ConfigFile:
                            'tgt': "tgt_{epoch:02d}.png",
                            'pred': "pred_{epoch:02d}.png",
                            'grad_x': "grad_x_{epoch:02d}.png",
-                           'grad_y': "grad_y_{epoch:02d}.png"}
+                           'grad_y': "grad_y_{epoch:02d}.png",
+                           'pred_seg': "pred_seg_{epoch:02d}.png"}
 
     def __init__(self, session_name, input_shape=None, losses=None, loss_weights=None, optimizer=None, callbacks=None, metrics=None, epochs=None, steps_per_epoch=None, initial_epoch=0, atlas_id=None):
         """

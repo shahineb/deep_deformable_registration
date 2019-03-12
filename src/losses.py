@@ -24,7 +24,9 @@ def dice_score(seg1, seg2):
     """
     numerator = 2 * tf.reduce_sum(tf.cast(tf.equal(seg1, seg2), tf.int32))
     denominator = tf.size(seg1) + tf.size(seg2)
-    return numerator / denominator
+    score = numerator / denominator
+    score = - tf.cast(score, tf.float32)
+    return score
 
 
 def registration_loss(vol1, vol2):

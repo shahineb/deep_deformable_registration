@@ -83,13 +83,13 @@ class LunaTester:
             tgt_scan (np.ndarray)
         """
         # TODO : extend to segmentation
-        [pred_tgt, _, __] = self.model_.predict([src_scan, tgt_scan])
+        output = self.model_.predict([src_scan, tgt_scan])
         scores = dict.fromkeys(self.metric_dict_.keys(), None)
         for metric_name, metric in self.metric_dict_.items():
-            scores.update({metric_name: [LunaTester._score_sample(tgt_scan, pred_tgt, metric)]})
+            scores.update({metric_name: [LunaTester._score_sample(tgt_scan, output[0], metric)]})
         return scores
 
-    def evaluate(self, test_ids):
+    def evaluate(self, test_ids, generator="luna", atlas_id=None, use_affine=False):
         """Evaluates model performances on a testing set for all the specified
         metrics
 
@@ -103,11 +103,20 @@ class LunaTester:
         pd.DataFrame(test_ids).to_csv(os.path.join(self.config.session_dir, LunaTester.test_ids_filename), index=False)
 
         (width, height, depth) = self.config.input_shape
-        if self.use_segmentation_:
-            test_gen = gen.scan_and_seg_generator(test_ids, width, height, depth, loop=False, shuffle=False)
+        if generator == "luna":
+            test_gen = gen.scan_generator(test_ids, width, height, depth, loop=False, shuffle=True, use_affine=use_affine)
+        elif generator == "segmentation":
+            test_gen = gen.scan_and_seg_generator(test_ids, width, height, depth, loop=False, shuffle=True, use_affine=use_affine)
+        elif generator == "atlas":
+            if not atlas_id:
+                raise RuntimeError("Must specify an atlas id if using atlas registration")
+            test_gen = gen.atlas_generator(atlas_id, test_ids, width, height, depth, loop=False, shuffle=True, use_affine=use_affine)
+        elif generator == "atlas_seg":
+            if not atlas_id:
+                raise RuntimeError("Must specify an atlas id if using atlas registration")
+            test_gen = gen.atlas_seg_generator(atlas_id, test_ids, width, height, depth, loop=False, shuffle=True, use_affine=use_affine)
         else:
-            test_gen = gen.scan_generator(test_ids, width, height, depth, loop=False, shuffle=False)
-
+            raise UnboundLocalError("Unkown specified generator")
         scores = dict.fromkeys(self.metric_dict_.keys(), [])
         i = 0
         self.logger.verbose(f"********** Beginning evaluation **********\n")

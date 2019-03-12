@@ -82,6 +82,11 @@ class LunaTrainer:
                 raise RuntimeError("Must specify an atlas id if using atlas registration")
             train_gen = gen.atlas_generator(self.config.atlas_id, train_ids, width, height, depth, loop, shuffle, use_affine)
             val_gen = gen.atlas_generator(self.config.atlas_id, val_ids, width, height, depth, loop, shuffle, use_affine)
+        elif generator == "atlas_seg":
+            if not self.config.atlas_id:
+                raise RuntimeError("Must specify an atlas id if using atlas registration")
+            train_gen = gen.atlas_seg_generator(self.config.atlas_id, train_ids, width, height, depth, loop, shuffle, use_affine)
+            val_gen = gen.atlas_seg_generator(self.config.atlas_id, val_ids, width, height, depth, loop, shuffle, use_affine)
         else:
             raise UnboundLocalError("Unkown specified generator")
 
