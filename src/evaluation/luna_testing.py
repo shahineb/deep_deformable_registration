@@ -7,7 +7,7 @@ import pandas as pd
 base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../..")
 sys.path.append(base_dir)
 from src.generators import luna_generator as gen
-from src.training._config_file import ConfigFile
+from src.training.config_file import ConfigFile
 import src.metrics as metrics
 
 
@@ -109,11 +109,15 @@ class LunaTester:
         if use_segmentation and use_affine:
             [deformed, flow, affine_flow, deformed_seg] = self._model.predict(sample[0])
         elif use_segmentation:
-            [deformed, flow, deformed_seg] = self._model.predict(sample[0])
+            try:
+                [deformed, flow, deformed_seg] = self._model.predict(sample[0])
+            except ValueError:
+                [deformed, flow] = self._model.predict(sample[0][0:2])
+                [deformed_seg, flow] = self._model.predict([sample[0][2], sample[0][1]])
         elif use_affine:
             [deformed, flow, affine_flow] = self._model.predict(sample[0])
         else:
-            [deformed, flow] = self._model.predict(sample)
+            [deformed, flow] = self._model.predict(sample[0])
         scores = dict.fromkeys(self._metric_dict.keys(), None)
         for metric_name, metric in self._reg_metric_dict.items():
             scores.update({metric_name: [LunaTester._wrap_metric(sample[0][1].squeeze(), deformed.squeeze(), metric)]})
@@ -153,9 +157,10 @@ class LunaTester:
         i = 0
         self._logger.verbose(f"********** Beginning evaluation **********\n")
         try:
+            print(eval_gen.__name__)
             while True:
-                sample = next(eval_gen, use_affine, use_segmentation)
-                sample_score = self.evaluate_sample(sample)
+                sample = next(eval_gen)
+                sample_score = self.evaluate_sample(sample, use_affine, use_segmentation)
                 scores.update({k: scores[k] + sample_score[k] for k in scores.keys()})
 
                 if i % (len(scan_ids) // 100 + 1) == 0:

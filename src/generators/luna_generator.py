@@ -104,8 +104,8 @@ def scan_and_seg_generator(scans_ids, width, height, depth, loop=False, shuffle=
     while True:
         if shuffle:
             random.shuffle(scans_ids)
-        scan_gen = loader.preprocess_scans(scans_ids, width, height, depth, loop=True, shuffle=False)
-        seg_gen = loader.preprocess_segmentations(scans_ids, width, height, depth, loop=True, shuffle=False)
+        scan_gen = loader.preprocess_scans(scans_ids, width, height, depth, loop=loop, shuffle=shuffle)
+        seg_gen = loader.preprocess_segmentations(scans_ids, width, height, depth, loop=loop, shuffle=shuffle)
 
         try:
             while True:
@@ -151,8 +151,8 @@ def atlas_seg_generator(atlas_id, scans_ids, width, height, depth, loop=False, s
     while True:
         if shuffle:
             random.shuffle(scans_ids)
-        scan_gen = loader.preprocess_scans(scans_ids, width, height, depth, loop=True, shuffle=False)
-        seg_gen = loader.preprocess_segmentations(scans_ids, width, height, depth, loop=True, shuffle=False)
+        scan_gen = loader.preprocess_scans(scans_ids, width, height, depth, loop=loop, shuffle=shuffle)
+        seg_gen = loader.preprocess_segmentations(scans_ids, width, height, depth, loop=loop, shuffle=shuffle)
 
         try:
             while True:
