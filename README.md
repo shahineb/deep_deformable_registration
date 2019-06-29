@@ -11,7 +11,7 @@ __Based on the [LUNA16 dataset](https://luna16.grand-challenge.org/data/), we pr
 
 <p align="center">
   <img width="100%" src="docs/img/example.gif" />
-  <em> Prediction evolution through epochs, see [report](https://github.com/shahineb/thera_reg_oma/blob/master/docs/report/thera_reg_oma.pdf) for more details </em>
+  <em> Prediction evolution through epochs, see report for more details </em>
 </p>
 
 
