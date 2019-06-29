@@ -8,8 +8,6 @@ and in 3D at:
 
 > (to be updated) Christodoulidis S, Sahasrabudhe M, Vakalopoulou M, ..., Paragios N. Linear and Deformable Image Registration with 3D Convolutional Neural Networks. RAMBO 2018.
 
-In case of any questions, please do not hesitate to contact us.
-
 ## Environment:
 
 This code was tested on a Linux machine with Ubuntu (16.04.4 LTS) using the following setup:
@@ -20,15 +18,3 @@ This code was tested on a Linux machine with Ubuntu (16.04.4 LTS) using the foll
     * tensorflow (1.8.0)
     * keras (2.1.6)
     * matplotlib (2.2.2)
-
-## How to use:
-
-```
-pip install -r requirements{-gpu}.txt
-python example-2d.py
-python example-3d.py
-```
-
-## TODO:
-
-Add a better 3D dataset with visualization results
