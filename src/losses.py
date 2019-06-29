@@ -12,7 +12,9 @@ def cross_correlation(vol1, vol2):
     var_1 = tf.reduce_sum(tf.square(vol1 - tf.reduce_mean(vol1)))
     var_2 = tf.reduce_sum(tf.square(vol2 - tf.reduce_mean(vol2)))
     cov_12 = tf.reduce_sum((vol2 - tf.reduce_mean(vol2)) * (vol1 - tf.reduce_mean(vol1)))
-    return tf.square(cov_12 / tf.sqrt(var_1 * var_2 + 1e-5))
+    score = cov_12 / tf.sqrt(var_1 * var_2 + 1e-5)
+    score = -tf.cast(score, tf.float32)
+    return score
 
 
 def dice_score(seg1, seg2):
