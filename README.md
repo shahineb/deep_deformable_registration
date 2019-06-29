@@ -9,7 +9,10 @@ Image registration is one of the most critical problems in radiology targeting t
 
 __Based on the [LUNA16 dataset](https://luna16.grand-challenge.org/data/), we propose to use deep registration architectures to evaluates how leveraging segmentation data can help improve performances.__
 
-<p align="center"><img width="100%" src="docs/img/example.gif" /></p>
+<p align="center">
+  <img width="100%" src="docs/img/example.gif" />
+  <em> Prediction evolution through epochs, see [report](https://github.com/shahineb/thera_reg_oma/blob/master/docs/report/thera_reg_oma.pdf) for more details </em>
+</p>
 
 
 ## Repository description
