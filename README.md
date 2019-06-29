@@ -7,7 +7,7 @@ Image registration is one of the most critical problems in radiology targeting t
 <p align="center"><img width="20%" src="docs/img/registration_schema.png" /></p>
 
 
-__Based on the [LUNA16 dataset](https://luna16.grand-challenge.org/data/), we propose to use deep registration architectures to evaluates how leveraging segmentation data can help improve performances.__
+__Based on the [LUNA16 dataset](https://luna16.grand-challenge.org/data/), we propose to use deep registration architectures to evaluate how leveraging segmentation data can help improve performances.__
 
 <p align="center">
   <img width="100%" src="docs/img/example.gif" />
